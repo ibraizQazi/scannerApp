@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
     private var disposable: Disposable? = null
 
-    private val innexivApiservice by lazy {
+    private val innexivApiService by lazy {
         InnexivApi.create()
     }
 
@@ -44,11 +44,15 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
                 val loginDetails = LoginPostBody("ibraiz.qazi@innexiv.com", "ibraiz123","123123123")
 
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     toast(mngr.imei.toString())
                 }
 
-                loginUser(loginDetails)
+
+            isNetworkConnected().let {
+                    loginUser(loginDetails)
+                }
             //}
         }
 
@@ -60,13 +64,13 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     }
 
     fun loginUser (loginDetails: LoginPostBody){
-        disposable = innexivApiservice.simpleFormLoginUser(loginDetails.email, loginDetails.password, "123123123")
+        disposable = innexivApiService.simpleFormLoginUser(loginDetails.email, loginDetails.password, "123123123")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         {
-                            result -> alert(result?.status +"Show sites").show()
-                            startActivity<GatewayActivity>()
+                            result -> alert(result?.token + " Show sites").show()
+                            //startActivity<GatewayActivity>()
                         },
                         {
                             error -> toast(error.toString())
@@ -76,8 +80,8 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     }
 
     private fun isNetworkConnected(): Boolean {
-        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager// 1
-        val networkInfo = connectivityManager.activeNetworkInfo // 2
-        return networkInfo != null && networkInfo.isConnected // 3
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkInfo = connectivityManager.activeNetworkInfo
+        return networkInfo != null && networkInfo.isConnected
     }
 }
