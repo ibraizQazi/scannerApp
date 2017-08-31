@@ -3,20 +3,25 @@ package com.innexiv.scannerapp.data
 import com.innexiv.scannerapp.BuildConfig
 import retrofit2.Call
 import retrofit2.Retrofit
-import retrofit2.http.Body
-import retrofit2.http.POST
 import io.reactivex.Observable
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.GET
+import retrofit2.http.*
+import java.io.IOException
 
 
 interface InnexivApi {
 
+    @FormUrlEncoded
     @POST("index.php?r=sitedna/iscanlogin")
-    fun loginUser(@Body loginPostBody: LoginPostBody) : Observable<LoginResponse>
+    fun simpleFormLoginUser(@Field("email", encoded = true) emailAddress: String,
+                            @Field("password", encoded = true) password: String,
+                            @Field("imei", encoded = true) imei: String) : Observable<LoginResponse>
 
     @POST("index.php?r=sitedna/barcodescanner/")
     fun sendBarcode(@Body barcodePost: BarcodePost) : Observable<BarcodeResponse>
