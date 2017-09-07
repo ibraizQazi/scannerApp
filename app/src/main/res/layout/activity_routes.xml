@@ -4,11 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.innexiv.scannerapp.GatewayActivity">
-
+    tools:context="com.innexiv.scannerapp.RoutesActivity">
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/sitesList"
+        android:id="@+id/routesList"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="8dp"
@@ -21,4 +20,5 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="8dp"
         tools:layout_editor_absoluteY="8dp" />
+
 </android.support.constraint.ConstraintLayout>

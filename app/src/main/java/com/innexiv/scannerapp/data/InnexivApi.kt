@@ -4,10 +4,7 @@ import com.innexiv.scannerapp.BuildConfig
 import retrofit2.Call
 import retrofit2.Retrofit
 import io.reactivex.Observable
-import okhttp3.Interceptor
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
+import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
@@ -26,8 +23,11 @@ interface InnexivApi {
     @POST("index.php?r=sitedna/barcodescanner/")
     fun sendBarcode(@Body barcodePost: BarcodePost) : Observable<BarcodeResponse>
 
-    @GET("index.php?r=sitedna/")
-    fun getSiteData()
+    @GET("index.php?r=site/getroute&id=shahab.alam@innexiv.com&pass=test123")
+    fun getRoutes() : Observable<ResponseBody>
+
+    @GET("index.php?r=site/getsites")
+    fun getSiteData() : Observable<SiteResponse>
 
     companion object {
         fun create(): InnexivApi {

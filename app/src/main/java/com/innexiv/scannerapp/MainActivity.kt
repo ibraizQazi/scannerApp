@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val mngr = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+        //val mngr = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
 
         login.setOnClickListener{
             //if (email.text.isNotEmpty() && email_password.text.isNotEmpty()) {
@@ -45,9 +45,9 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 val loginDetails = LoginPostBody("ibraiz.qazi@innexiv.com", "ibraiz123","123123123")
 
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     toast(mngr.imei.toString())
-                }
+                }*/
 
 
             isNetworkConnected().let {
@@ -64,16 +64,16 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     }
 
     fun loginUser (loginDetails: LoginPostBody){
-        disposable = innexivApiService.simpleFormLoginUser(loginDetails.email, loginDetails.password, "123123123")
+        disposable = innexivApiService.simpleFormLoginUser(loginDetails.email, loginDetails.password, loginDetails.imei)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         {
-                            result -> alert(result?.token + " Show sites").show()
-                            //startActivity<GatewayActivity>()
+                            result -> result?.token?.let { toast(it) }
+                            startActivity<GatewayActivity>()
                         },
                         {
-                            error -> toast(error.toString())
+                            error -> debug(error)
                         }
                 )
 
