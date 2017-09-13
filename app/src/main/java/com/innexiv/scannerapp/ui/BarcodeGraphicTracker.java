@@ -1,14 +1,9 @@
-package com.innexiv.scannerapp;
-
-/**
- * Created by ibrai on 30/08/2017.
- */
-
+package com.innexiv.scannerapp.ui;
 
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.Tracker;
 import com.google.android.gms.vision.barcode.Barcode;
-import com.innexiv.scannerapp.camera.GraphicOverlay;
+import com.innexiv.scannerapp.barcodesupport.camera.GraphicOverlay;
 
 /**
  * Generic tracker which is used for tracking or reading a barcode (and can really be used for
@@ -16,9 +11,11 @@ import com.innexiv.scannerapp.camera.GraphicOverlay;
  * to an overlay, update the graphics as the item changes, and remove the graphics when the item
  * goes away.
  */
-class BarcodeGraphicTracker extends Tracker<Barcode> {
+public class BarcodeGraphicTracker extends Tracker<Barcode> {
+
     private GraphicOverlay<BarcodeGraphic> mOverlay;
     private BarcodeGraphic mGraphic;
+    public static BarcodeDetectorListener mBarcodeDetectorListener;
 
     BarcodeGraphicTracker(GraphicOverlay<BarcodeGraphic> overlay, BarcodeGraphic graphic) {
         mOverlay = overlay;
@@ -31,6 +28,10 @@ class BarcodeGraphicTracker extends Tracker<Barcode> {
     @Override
     public void onNewItem(int id, Barcode item) {
         mGraphic.setId(id);
+
+        if(mBarcodeDetectorListener == null) return;
+        mBarcodeDetectorListener.onObjectDetected(item);
+        mBarcodeDetectorListener = null;
     }
 
     /**
@@ -60,5 +61,12 @@ class BarcodeGraphicTracker extends Tracker<Barcode> {
     public void onDone() {
         mOverlay.remove(mGraphic);
     }
-}
 
+    /*
+    * Call back that is fired when a new barcode is detected
+    * */
+    public interface BarcodeDetectorListener{
+        //event call back
+        void onObjectDetected(Barcode data);
+    }
+}

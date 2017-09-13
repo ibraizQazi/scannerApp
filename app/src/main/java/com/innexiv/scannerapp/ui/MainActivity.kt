@@ -1,4 +1,4 @@
-package com.innexiv.scannerapp
+package com.innexiv.scannerapp.ui
 
 import android.content.Context
 import android.net.ConnectivityManager
@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity
 import android.support.design.widget.Snackbar
 import android.os.Bundle
 import android.telephony.TelephonyManager
+import com.innexiv.scannerapp.R
 import com.innexiv.scannerapp.data.InnexivApi
 import com.innexiv.scannerapp.data.LoginPostBody
 import com.innexiv.scannerapp.data.LoginResponse
@@ -49,7 +50,6 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                     toast(mngr.imei.toString())
                 }*/
 
-
             isNetworkConnected().let {
                     loginUser(loginDetails)
                 }
@@ -69,8 +69,9 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         {
-                            result -> result?.token?.let { toast(it) }
-                            startActivity<GatewayActivity>()
+                            result ->
+                            //result?.token?.let { toast(it) }
+                            startActivity<RoutesActivity>("token" to result.token)
                         },
                         {
                             error -> debug(error)

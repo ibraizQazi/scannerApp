@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.innexiv.scannerapp">
 
+    <uses-feature android:name="android.hardware.camera" />
+
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
@@ -21,20 +23,25 @@
             android:name="com.google.android.gms.vision.DEPENDENCIES"
             android:value="barcode" />
 
-        <activity android:name=".MainActivity">
+        <activity android:name=".ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".GatewayActivity"
-            android:label="Gateway"/>
+
         <activity
-            android:name=".BarcodeCaptureActivity"
-            android:label="Read Barcode" />
-        <activity android:name=".RoutesActivity"
-            android:label="Routes"/>
+            android:name=".ui.GatewayActivity"
+            android:label="Gateway" />
+
+        <activity
+            android:name=".ui.RoutesActivity"
+            android:label="Routes" />
+
+        <activity android:name=".ui.BarcodeCaptureActivity"
+            android:label="Barcode Scanner"/>
+
     </application>
 
 </manifest>

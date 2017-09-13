@@ -23,11 +23,13 @@ interface InnexivApi {
     @POST("index.php?r=sitedna/barcodescanner/")
     fun sendBarcode(@Body barcodePost: BarcodePost) : Observable<BarcodeResponse>
 
-    @GET("index.php?r=site/getroute&id=shahab.alam@innexiv.com&pass=test123")
-    fun getRoutes() : Observable<ResponseBody>
+    @POST("index.php?r=site/getroute&id=shahab.alam@innexiv.com&pass=test123")
+    fun getRoutes() : Observable<RoutesResponse>
 
-    @GET("index.php?r=site/getsites")
-    fun getSiteData() : Observable<SiteResponse>
+    @FormUrlEncoded
+    @POST("index.php?r=site/getsites")
+    fun getSiteData(@Field("id", encoded = true) emailAddress: String,
+                    @Field("pass", encoded = true) password: String) : Observable<SiteResponse>
 
     companion object {
         fun create(): InnexivApi {
@@ -44,11 +46,6 @@ interface InnexivApi {
                     .addConverterFactory(GsonConverterFactory.create())
                     .baseUrl("http://115.186.155.20:5051/innexiverp/")
                     .build()
-
-/*            val retrofit = Retrofit.Builder()
-                    .addConverterFactory(MoshiConverterFactory.create())
-                    .baseUrl("http://115.186.155.20:5051/innexiverp/")
-                    .build()*/
 
             return retrofit.create(InnexivApi::class.java)
         }

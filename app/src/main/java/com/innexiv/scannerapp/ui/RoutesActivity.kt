@@ -1,58 +1,74 @@
-package com.innexiv.scannerapp
+package com.innexiv.scannerapp.ui
 
+import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.widget.LinearLayout
-import com.innexiv.scannerapp.adapter.RoutesAdapter
+import com.innexiv.scannerapp.R
+import com.innexiv.scannerapp.adapter.RoutesSiteAdapter
 import com.innexiv.scannerapp.data.InnexivApi
-import io.reactivex.Scheduler
+import com.innexiv.scannerapp.data.RouteSite
+import com.innexiv.scannerapp.data.RoutesResponse
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_routes.*
-import okhttp3.Response
-import okhttp3.ResponseBody
-import org.jetbrains.anko.AnkoLogger
-import org.jetbrains.anko.debug
-import org.jetbrains.anko.error
-import org.jetbrains.anko.startActivity
+import org.jetbrains.anko.*
 
 
 class RoutesActivity : AppCompatActivity(), AnkoLogger {
 
+    companion object {
+        private val KEY_ROUTE_SITES = "routesSiteList"
+    }
     private var disposable: Disposable? = null
 
     private val innexivApiService by lazy {
         InnexivApi.create()
     }
+    private lateinit var siteList: List<RouteSite>
+    private lateinit var routeResponseObject : RoutesResponse
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_routes)
 
         //routesList.layoutManager = LinearLayoutManager(this, LinearLayout.VERTICAL, false)
+        intent?.let {
+           toast( it.getStringExtra("token") )
+        }
         routesList.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(this@RoutesActivity, LinearLayout.VERTICAL, false)
         }
 
         getRoutes()
+
     }
     override fun onPause() {
         super.onPause()
         disposable?.dispose()
     }
 
-    fun getRoutes(){
+
+    private fun getRoutes(){
         disposable = innexivApiService.getRoutes()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         {
-                            t: ResponseBody? ->  debug(t.toString())
-                            //routesList.adapter = RoutesAdapter()
-                            startActivity<GatewayActivity>()
+                            routeResponseObject = it
+                            routesList.adapter = RoutesSiteAdapter(routeResponseObject.routesList){
+                                //toast("${it.name} Clicked")
+                                siteList = getRelevantRoutes(it.id)
+
+                                val i = Intent(this, GatewayActivity::class.java)
+                                i.putParcelableArrayListExtra(KEY_ROUTE_SITES,ArrayList(siteList))
+                                startActivity(i)
+
+                            }
+                            routesList.adapter.notifyDataSetChanged()
 
                         },
                         {
@@ -61,4 +77,7 @@ class RoutesActivity : AppCompatActivity(), AnkoLogger {
                 )
 
     }
+
+    private fun getRelevantRoutes(id: Int) : List<RouteSite> = routeResponseObject.routeSiteList.filter { it.routeId == id }
+
 }
