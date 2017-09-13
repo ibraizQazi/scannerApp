@@ -30,18 +30,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
-            android:name=".ui.GatewayActivity"
-            android:label="Gateway" />
-
+            android:name=".ui.RouteSitesActivity"
+            android:label="Sites" />
         <activity
             android:name=".ui.RoutesActivity"
             android:label="Routes" />
-
-        <activity android:name=".ui.BarcodeCaptureActivity"
-            android:label="Barcode Scanner"/>
-
+        <activity
+            android:name=".ui.BarcodeCaptureActivity"
+            android:label="Barcode Scanner" />
+        <activity android:name=".ui.GatewayActivity"></activity>
     </application>
 
 </manifest>

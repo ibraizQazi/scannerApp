@@ -63,7 +63,7 @@ class RoutesActivity : AppCompatActivity(), AnkoLogger {
                                 //toast("${it.name} Clicked")
                                 siteList = getRelevantRoutes(it.id)
 
-                                val i = Intent(this, GatewayActivity::class.java)
+                                val i = Intent(this, RouteSitesActivity::class.java)
                                 i.putParcelableArrayListExtra(KEY_ROUTE_SITES,ArrayList(siteList))
                                 startActivity(i)
 
