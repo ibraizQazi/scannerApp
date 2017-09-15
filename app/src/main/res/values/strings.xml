@@ -16,4 +16,6 @@
     <string name="email_hint">Email</string>
     <string name="password_hint">Password</string>
     <string name="login_btn_text">Login</string>
+    <string name="scan_gateway">Scan Gateway</string>
+    <string name="complete_installation">Finish Installation.</string>
 </resources>

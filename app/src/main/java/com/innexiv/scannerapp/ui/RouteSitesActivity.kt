@@ -19,18 +19,24 @@ class RouteSitesActivity : AppCompatActivity(), AnkoLogger {
         InnexivApi.create()
     }*/
 
+    companion object {
+        private val KEY_ACTIVITY_ID = "keyActivityId"
+        private val KEY_ROUTES_SITE_LIST = "routesSiteList"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_route_sites)
 
-        val siteListFromIntent  = intent.getParcelableArrayListExtra<RouteSite>("routesSiteList")
+        val siteListFromIntent  = intent.getParcelableArrayListExtra<RouteSite>(KEY_ROUTES_SITE_LIST)
 
         sitesList.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context, LinearLayout.VERTICAL, false)
             adapter = RoutesAdapter(siteListFromIntent){
-                val pos = distFrom(33.69, 73.05, it.latitude!!.toDouble(), it.longitude!!.toDouble())
-                toast("${it.id} in radius? Ans: $pos")
+                //val pos = distFrom(33.69, 73.05, it.latitude!!.toDouble(), it.longitude!!.toDouble())
+                //toast("${it.id} in radius? Ans: $pos")
+                startActivity<GatewayActivity>(KEY_ACTIVITY_ID to it.activityId)
                 //val i = Intent(this@RouteSitesActivity, BarcodeCaptureActivity::class.java)
             }
         }
@@ -49,7 +55,7 @@ class RouteSitesActivity : AppCompatActivity(), AnkoLogger {
                 .subscribe(
                     {
                         toast(it.siteList.size.toString())
-                        sitesList.adapter = SitesAdapter(it.siteList){
+                        sitesList.adapter = NodesAdapter(it.siteList){
 
                             startActivity<BarcodeCaptureActivity>()
                         }

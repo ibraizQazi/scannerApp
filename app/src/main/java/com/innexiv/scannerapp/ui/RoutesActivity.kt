@@ -53,7 +53,7 @@ class RoutesActivity : AppCompatActivity(), AnkoLogger {
 
 
     private fun getRoutes(){
-        disposable = innexivApiService.getRoutes()
+        disposable = innexivApiService.getRoutes("shahab.alam@innexiv.com", "test123")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -61,11 +61,13 @@ class RoutesActivity : AppCompatActivity(), AnkoLogger {
                             routeResponseObject = it
                             routesList.adapter = RoutesSiteAdapter(routeResponseObject.routesList){
                                 //toast("${it.name} Clicked")
-                                siteList = getRelevantRoutes(it.id)
-
-                                val i = Intent(this, RouteSitesActivity::class.java)
-                                i.putParcelableArrayListExtra(KEY_ROUTE_SITES,ArrayList(siteList))
-                                startActivity(i)
+                                if (getRelevantRoutes(it.id).isNotEmpty()) {
+                                    siteList = getRelevantRoutes(it.id)
+                                    val i = Intent(this, RouteSitesActivity::class.java)
+                                    i.putParcelableArrayListExtra(KEY_ROUTE_SITES,ArrayList(siteList))
+                                    startActivity(i)
+                                } else
+                                     toast ("No sites available for this Route: ${it.name}")
 
                             }
                             routesList.adapter.notifyDataSetChanged()

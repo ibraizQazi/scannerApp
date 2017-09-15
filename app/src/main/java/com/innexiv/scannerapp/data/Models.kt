@@ -27,8 +27,8 @@ data class BarcodeResponse (@SerializedName("r") val r: String, @SerializedName(
     }
 }
 
-
 data class LoginPostBody(var email: String , var password: String, var imei: String)
+
 data class LoginResponse (@SerializedName("status") val status: String, @SerializedName("token") val token: String) : Parcelable {
 
     companion object {
@@ -55,15 +55,14 @@ data class LoginResponse (@SerializedName("status") val status: String, @Seriali
 //site models
 data class SiteResponse(@SerializedName("result") val result: String,
                         @SerializedName("freason") val freason: String,
-                        @SerializedName("site") val siteList: ArrayList<SiteObject>) {
+                        @SerializedName("site") val siteList: ArrayList<SiteObject>)
 
-    data class SiteObject(@SerializedName("name") val name: String,
-                           @SerializedName("short_name") val shortName: String,
-                           @SerializedName("id") val id: Int,
-                           @SerializedName("country_id") val countryId: Int,
-                           @SerializedName("region_id") val regionId: Int,
-                           @SerializedName("province_id") val provinceId: Int,
-                           @SerializedName("city_id") val cityId: Int,
-                           @SerializedName("latitude") val latitude: String,
-                           @SerializedName("longitude") val longitude: String)
-}
+data class SiteObject(@SerializedName("name") val name: String,
+                       @SerializedName("short_name") val shortName: String,
+                       @SerializedName("id") val id: Int,
+                       @SerializedName("country_id") val countryId: Int,
+                       @SerializedName("region_id") val regionId: Int,
+                       @SerializedName("province_id") val provinceId: Int,
+                       @SerializedName("city_id") val cityId: Int,
+                       @SerializedName("latitude") val latitude: String,
+                       @SerializedName("longitude") val longitude: String)

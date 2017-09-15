@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -36,9 +37,20 @@ import com.innexiv.scannerapp.R;
 import com.innexiv.scannerapp.barcodesupport.camera.CameraSource;
 import com.innexiv.scannerapp.barcodesupport.camera.CameraSourcePreview;
 import com.innexiv.scannerapp.barcodesupport.camera.GraphicOverlay;
+import com.innexiv.scannerapp.data.BarcodePost;
+import com.innexiv.scannerapp.data.BarcodeResponse;
+import com.innexiv.scannerapp.data.InnexivApi;
 
 
 import java.io.IOException;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class BarcodeCaptureActivity extends AppCompatActivity {
 
@@ -46,8 +58,6 @@ public class BarcodeCaptureActivity extends AppCompatActivity {
 
     // intent request code to handle updating play services if needed.
     private static final int RC_HANDLE_GMS = 9001;
-
-    private static final int RC_BARCODE_CAPTURE = 9001;
 
     // permission request codes need to be < 256
     private static final int RC_HANDLE_CAMERA_PERM = 2;
@@ -69,6 +79,7 @@ public class BarcodeCaptureActivity extends AppCompatActivity {
     private CompoundButton autoFocus;
     private CompoundButton useFlash;
 
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,14 +88,18 @@ public class BarcodeCaptureActivity extends AppCompatActivity {
 
         mPreview = (CameraSourcePreview) findViewById(R.id.preview);
         mGraphicOverlay = (GraphicOverlay<BarcodeGraphic>) findViewById(R.id.graphicOverlay);
-        autoFocus = (CompoundButton) findViewById(R.id.autoFocus);
-        useFlash = (CompoundButton) findViewById(R.id.useFlash);
+        //autoFocus = (CompoundButton) findViewById(R.id.autoFocus);
+        //useFlash = (CompoundButton) findViewById(R.id.useFlash);
+
+        // read parameters from the intent used to launch the activity.
+        final boolean autoFocusVal = getIntent().getBooleanExtra(AutoFocus, true);
+        final boolean useFlashVal = getIntent().getBooleanExtra(UseFlash, true);
 
         // Check for the camera permission before accessing the camera.  If the
         // permission is not granted yet, request permission.
         int rc = ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
         if (rc == PackageManager.PERMISSION_GRANTED) {
-            createCameraSource(true, false);
+            createCameraSource(autoFocusVal, useFlashVal);
         } else {
             requestCameraPermission();
         }
@@ -95,7 +110,6 @@ public class BarcodeCaptureActivity extends AppCompatActivity {
         Snackbar.make(mGraphicOverlay, "Tap to capture. Pinch/Stretch to zoom",
                 Snackbar.LENGTH_LONG)
                 .show();
-
     }
 
 
@@ -121,34 +135,6 @@ public class BarcodeCaptureActivity extends AppCompatActivity {
      * @see #createPendingResult
      * @see #setResult(int)
      */
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == RC_BARCODE_CAPTURE) {
-            if (resultCode == CommonStatusCodes.SUCCESS) {
-                if (data != null) {
-                    Barcode barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject);
-                    //statusMessage.setText(R.string.barcode_success);
-                    //barcodeValue.setText(barcode.displayValue);
-                    Toast.makeText(this,"barcode value" +barcode.toString(),Toast.LENGTH_SHORT ).show();
-                    /*try {
-                        postBarcodeWithBody(barcode.displayValue);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }*/
-                    Log.d(TAG, "Barcode read: " + barcode.displayValue);
-                } else {
-                    //statusMessage.setText(R.string.barcode_failure);
-                    Log.d(TAG, "No barcode captured, intent data is null");
-                }
-            } else {
-                //statusMessage.setText(String.format(getString(R.string.barcode_error), CommonStatusCodes.getStatusCodeString(resultCode)));
-
-            }
-        }
-        else {
-            super.onActivityResult(requestCode, resultCode, data);
-        }
-    }
 
     /**
      * Handles the requesting of the camera permission.  This includes
@@ -395,13 +381,45 @@ public class BarcodeCaptureActivity extends AppCompatActivity {
         }
 
         if (best != null) {
-            Intent data = new Intent();
+            checkNodeBarcode(best);
+            /*Intent data = new Intent();
             data.putExtra(BarcodeObject, best);
-            setResult(CommonStatusCodes.SUCCESS, data);
-            finish();
+            setResult(CommonStatusCodes.SUCCESS, data);*/
             return true;
         }
         return false;
+    }
+
+    private void checkNodeBarcode( final Barcode best) {
+
+        final BarcodePost obj = new BarcodePost(best.displayValue);
+        Call<BarcodeResponse> call =InnexivApi.Companion.create().sendBarcode(obj);
+        progressDialog = ProgressDialog.show(this, "Checking with server"," please wait...", true);
+
+        call.enqueue(new Callback<BarcodeResponse>() {
+            @Override
+            public void onResponse(Call<BarcodeResponse> call, Response<BarcodeResponse> response) {
+                if (response.isSuccessful()){
+
+                    Intent data = new Intent();
+                    data.putExtra(BarcodeObject, best);
+                    setResult(CommonStatusCodes.SUCCESS, data);
+                    progressDialog.dismiss();
+                    finish();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<BarcodeResponse> call, Throwable t) {
+                Log.d(TAG, "onFailure: "+t.getMessage());
+                Intent data = new Intent();
+                data.putExtra(BarcodeObject, best);
+                setResult(CommonStatusCodes.RESOLUTION_REQUIRED, data);
+                progressDialog.dismiss();
+                finish();
+            }
+        });
+
     }
 
     private class CaptureGestureListener extends GestureDetector.SimpleOnGestureListener {

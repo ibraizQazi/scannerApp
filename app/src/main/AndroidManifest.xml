@@ -39,7 +39,8 @@
         <activity
             android:name=".ui.BarcodeCaptureActivity"
             android:label="Barcode Scanner" />
-        <activity android:name=".ui.GatewayActivity"></activity>
+        <activity android:name=".ui.GatewayActivity"
+            android:label="Gateway"/>
     </application>
 
 </manifest>

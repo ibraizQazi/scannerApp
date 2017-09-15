@@ -11,6 +11,7 @@ import com.innexiv.scannerapp.R
 import com.innexiv.scannerapp.data.InnexivApi
 import com.innexiv.scannerapp.data.LoginPostBody
 import com.innexiv.scannerapp.data.LoginResponse
+import com.innexiv.scannerapp.extensions.isNetworkConnected
 import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -28,6 +29,9 @@ import okhttp3.RequestBody
 
 class MainActivity : AppCompatActivity(), AnkoLogger {
 
+    companion object {
+        private val LOGIN_SUCCESS = "success"
+    }
     private var disposable: Disposable? = null
 
     private val innexivApiService by lazy {
@@ -41,19 +45,20 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         //val mngr = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
 
         login.setOnClickListener{
-            //if (email.text.isNotEmpty() && email_password.text.isNotEmpty()) {
+            if (email.text.isNotEmpty() && email_password.text.isNotEmpty()){
 
                 val loginDetails = LoginPostBody("ibraiz.qazi@innexiv.com", "ibraiz123","123123123")
-
 
                 /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     toast(mngr.imei.toString())
                 }*/
 
-            isNetworkConnected().let {
-                    loginUser(loginDetails)
-                }
-            //}
+                isNetworkConnected().let {
+                        loginUser(loginDetails)
+                    }
+            } else{
+                Snackbar.make(topLayout, "Enter Email or Password", Snackbar.LENGTH_LONG).show()
+            }
         }
 
     }
@@ -63,7 +68,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         disposable?.dispose()
     }
 
-    fun loginUser (loginDetails: LoginPostBody){
+    private fun loginUser (loginDetails: LoginPostBody){
         disposable = innexivApiService.simpleFormLoginUser(loginDetails.email, loginDetails.password, loginDetails.imei)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -71,7 +76,9 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                         {
                             result ->
                             //result?.token?.let { toast(it) }
-                            startActivity<RoutesActivity>("token" to result.token)
+                            if (result.status == LOGIN_SUCCESS && result.token.isNotEmpty())
+                                startActivity<RoutesActivity>("token" to result.token)
+
                         },
                         {
                             error -> debug(error)
@@ -80,9 +87,9 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
     }
 
-    private fun isNetworkConnected(): Boolean {
+    /*private fun isNetworkConnected(): Boolean {
         val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkInfo = connectivityManager.activeNetworkInfo
         return networkInfo != null && networkInfo.isConnected
-    }
+    }*/
 }

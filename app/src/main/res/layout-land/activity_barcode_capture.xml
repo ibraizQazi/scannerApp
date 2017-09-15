@@ -21,7 +21,7 @@
 
     </com.innexiv.scannerapp.barcodesupport.camera.CameraSourcePreview>
 
-    <Switch
+<!--    <Switch
         android:id="@+id/autoFocus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -39,6 +39,6 @@
         android:layout_marginRight="16dp"
         android:text="Flash"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
+        app:layout_constraintRight_toRightOf="parent" />-->
 
 </android.support.constraint.ConstraintLayout>

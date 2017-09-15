@@ -1,6 +1,7 @@
 package com.innexiv.scannerapp.data
 
 import com.innexiv.scannerapp.BuildConfig
+import com.innexiv.scannerapp.ui.GatewayActivity
 import retrofit2.Call
 import retrofit2.Retrofit
 import io.reactivex.Observable
@@ -21,11 +22,18 @@ interface InnexivApi {
                             @Field("imei", encoded = true) imei: String) : Observable<LoginResponse>
 
     @POST("index.php?r=sitedna/barcodescanner/")
-    fun sendBarcode(@Body barcodePost: BarcodePost) : Observable<BarcodeResponse>
+    fun sendBarcode(@Body barcodePost: BarcodePost) : Call<BarcodeResponse>
 
-    @POST("index.php?r=site/getroute&id=shahab.alam@innexiv.com&pass=test123")
-    fun getRoutes() : Observable<RoutesResponse>
+    @FormUrlEncoded
+    @POST("index.php?r=site/getroute")
+    fun getRoutes(@Field("id", encoded = true) id: String,
+                  @Field("pass", encoded = true) password: String) : Observable<RoutesResponse>
 
+    @FormUrlEncoded
+    @POST("index.php?r=sitedna/getequipmentlayer")
+    fun getNodesInfo(@Field("activity_id", encoded = true) activity: Int) : Observable<ActivityNodes>
+
+    //it fetches all the sites but NOT in use
     @FormUrlEncoded
     @POST("index.php?r=site/getsites")
     fun getSiteData(@Field("id", encoded = true) emailAddress: String,
