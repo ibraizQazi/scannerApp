@@ -23,6 +23,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.view.Window;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,7 +53,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class BarcodeCaptureActivity extends AppCompatActivity {
+public class BarcodeCaptureActivity extends AppCompatActivity implements BarcodeGraphicTracker.BarcodeDetectorListener {
 
     private static final String TAG = "Barcode-reader";
 
@@ -65,6 +66,7 @@ public class BarcodeCaptureActivity extends AppCompatActivity {
     // constants used to pass extra data in the intent
     public static final String AutoFocus = "AutoFocus";
     public static final String UseFlash = "UseFlash";
+    public static final String AutoCapture = "AutoCapture";
     public static final String BarcodeObject = "Barcode";
 
     private CameraSource mCameraSource;
@@ -75,9 +77,7 @@ public class BarcodeCaptureActivity extends AppCompatActivity {
     private ScaleGestureDetector scaleGestureDetector;
     private GestureDetector gestureDetector;
 
-
-    private CompoundButton autoFocus;
-    private CompoundButton useFlash;
+    private boolean autoFocus, useFlash, autoCapture;
 
     private ProgressDialog progressDialog;
 
@@ -88,18 +88,17 @@ public class BarcodeCaptureActivity extends AppCompatActivity {
 
         mPreview = (CameraSourcePreview) findViewById(R.id.preview);
         mGraphicOverlay = (GraphicOverlay<BarcodeGraphic>) findViewById(R.id.graphicOverlay);
-        //autoFocus = (CompoundButton) findViewById(R.id.autoFocus);
-        //useFlash = (CompoundButton) findViewById(R.id.useFlash);
 
         // read parameters from the intent used to launch the activity.
-        final boolean autoFocusVal = getIntent().getBooleanExtra(AutoFocus, true);
-        final boolean useFlashVal = getIntent().getBooleanExtra(UseFlash, true);
+        autoFocus = getIntent().getBooleanExtra(AutoFocus, true);
+        useFlash = getIntent().getBooleanExtra(UseFlash, true);
+        autoCapture = getIntent().getBooleanExtra(AutoCapture, false);
 
         // Check for the camera permission before accessing the camera.  If the
         // permission is not granted yet, request permission.
         int rc = ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
         if (rc == PackageManager.PERMISSION_GRANTED) {
-            createCameraSource(autoFocusVal, useFlashVal);
+            createCameraSource(autoFocus, useFlash);
         } else {
             requestCameraPermission();
         }
@@ -112,7 +111,46 @@ public class BarcodeCaptureActivity extends AppCompatActivity {
                 .show();
     }
 
-
+    /**
+     * Called when the current {@link Window} of the activity gains or loses
+     * focus.  This is the best indicator of whether this activity is visible
+     * to the user.  The default implementation clears the key tracking
+     * state, so should always be called.
+     * <p>
+     * <p>Note that this provides information about global focus state, which
+     * is managed independently of activity lifecycles.  As such, while focus
+     * changes will generally have some relation to lifecycle changes (an
+     * activity that is stopped will not generally get window focus), you
+     * should not rely on any particular order between the callbacks here and
+     * those in the other lifecycle methods such as {@link #onResume}.
+     * <p>
+     * <p>As a general rule, however, a resumed activity will have window
+     * focus...  unless it has displayed other dialogs or popups that take
+     * input focus, in which case the activity itself will not have focus
+     * when the other windows have it.  Likewise, the system may display
+     * system-level windows (such as the status bar notification panel or
+     * a system alert) which will temporarily take window input focus without
+     * pausing the foreground activity.
+     *
+     * @param hasFocus Whether the window of this activity has focus.
+     * @see #hasWindowFocus()
+     * @see #onResume
+     * @see View#onWindowFocusChanged(boolean)
+     */
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+            if (hasFocus) {
+                getWindow().getDecorView().setSystemUiVisibility(
+                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+            }
+    }
     /**
      * Called when an activity you launched exits, giving you the requestCode
      * you started it with, the resultCode it returned, and any additional
@@ -194,9 +232,9 @@ public class BarcodeCaptureActivity extends AppCompatActivity {
         // graphics for each barcode on screen.  The factory is used by the multi-processor to
         // create a separate tracker instance for each barcode.
         BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(context).build();
-        BarcodeTrackerFactory barcodeFactory = new BarcodeTrackerFactory(mGraphicOverlay);
+        BarcodeTrackerFactory barcodeFactory = new BarcodeTrackerFactory(mGraphicOverlay, autoCapture?this:null);
         barcodeDetector.setProcessor(
-                new MultiProcessor.Builder<Barcode>(barcodeFactory).build());
+                new MultiProcessor.Builder<>(barcodeFactory).build());
 
         if (!barcodeDetector.isOperational()) {
             // Note: The first time that an app using the barcode or face API is installed on a
@@ -381,10 +419,11 @@ public class BarcodeCaptureActivity extends AppCompatActivity {
         }
 
         if (best != null) {
-            checkNodeBarcode(best);
+            //checkNodeBarcode(best);
             /*Intent data = new Intent();
             data.putExtra(BarcodeObject, best);
-            setResult(CommonStatusCodes.SUCCESS, data);*/
+            setResult(CommonStatusCodes.SUCCESS, data);
+            finish();*/
             return true;
         }
         return false;
@@ -420,6 +459,14 @@ public class BarcodeCaptureActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Override
+    public void onObjectDetected(Barcode data) {
+        Intent mIntent = new Intent();
+        mIntent.putExtra(BarcodeObject, data);
+        setResult(CommonStatusCodes.SUCCESS, mIntent);
+        finish();
     }
 
     private class CaptureGestureListener extends GestureDetector.SimpleOnGestureListener {

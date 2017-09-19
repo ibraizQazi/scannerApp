@@ -15,11 +15,15 @@ public class BarcodeGraphicTracker extends Tracker<Barcode> {
 
     private GraphicOverlay<BarcodeGraphic> mOverlay;
     private BarcodeGraphic mGraphic;
-    public static BarcodeDetectorListener mBarcodeDetectorListener;
+    private BarcodeDetectorListener mBarcodeDetectorListener;
 
     BarcodeGraphicTracker(GraphicOverlay<BarcodeGraphic> overlay, BarcodeGraphic graphic) {
         mOverlay = overlay;
         mGraphic = graphic;
+    }
+
+    public void setDetectorListener(BarcodeDetectorListener mBarcodeDetectorListener) {
+        this.mBarcodeDetectorListener = mBarcodeDetectorListener;
     }
 
     /**
@@ -28,10 +32,8 @@ public class BarcodeGraphicTracker extends Tracker<Barcode> {
     @Override
     public void onNewItem(int id, Barcode item) {
         mGraphic.setId(id);
-
         if(mBarcodeDetectorListener == null) return;
         mBarcodeDetectorListener.onObjectDetected(item);
-        mBarcodeDetectorListener = null;
     }
 
     /**

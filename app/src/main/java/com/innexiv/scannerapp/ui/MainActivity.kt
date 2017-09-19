@@ -1,5 +1,6 @@
 package com.innexiv.scannerapp.ui
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
 import android.os.Build
@@ -39,19 +40,22 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     }
 
 
+    @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        //val mngr = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+        val mngr = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
 
         login.setOnClickListener{
             if (email.text.isNotEmpty() && email_password.text.isNotEmpty()){
 
-                val loginDetails = LoginPostBody("ibraiz.qazi@innexiv.com", "ibraiz123","123123123")
-
-                /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    toast(mngr.imei.toString())
+               /* val loginDetails = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    LoginPostBody(email.text.toString(),email_password.text.toString(), imei = mngr.imei)
+                } else {
+                    LoginPostBody(email.text.toString(),email_password.text.toString(), imei = mngr.deviceId)
                 }*/
+
+                val loginDetails = LoginPostBody("ibraiz.qazi@innexiv.com", "ibraiz123","123123123")
 
                 isNetworkConnected().let {
                         loginUser(loginDetails)
@@ -74,10 +78,9 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         {
-                            result ->
                             //result?.token?.let { toast(it) }
-                            if (result.status == LOGIN_SUCCESS && result.token.isNotEmpty())
-                                startActivity<RoutesActivity>("token" to result.token)
+                            if (it.status == LOGIN_SUCCESS && it.token.isNotEmpty())
+                                startActivity<RoutesActivity>("token" to it.token)
 
                         },
                         {
@@ -86,10 +89,4 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 )
 
     }
-
-    /*private fun isNetworkConnected(): Boolean {
-        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val networkInfo = connectivityManager.activeNetworkInfo
-        return networkInfo != null && networkInfo.isConnected
-    }*/
 }

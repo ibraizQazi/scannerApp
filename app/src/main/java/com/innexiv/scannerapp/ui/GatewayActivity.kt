@@ -3,7 +3,9 @@ package com.innexiv.scannerapp.ui
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.transition.Visibility
 import android.support.v7.widget.LinearLayoutManager
+import android.view.View
 import android.widget.LinearLayout
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.vision.barcode.Barcode
@@ -51,10 +53,13 @@ class GatewayActivity : AppCompatActivity(), AnkoLogger {
             if (!gatewayScanned){
                 val i = Intent(this, BarcodeCaptureActivity::class.java)
                 i.putExtra(BarcodeCaptureActivity.AutoFocus, true)
-                i.putExtra(BarcodeCaptureActivity.UseFlash,true)
-                startActivityForResult(i, GATEWAY_BARCODE_CAPTURE )
-            } else{
+                i.putExtra(BarcodeCaptureActivity.UseFlash,false)
+                i.putExtra(BarcodeCaptureActivity.AutoCapture, true)
 
+                startActivityForResult(i, GATEWAY_BARCODE_CAPTURE )
+            } else {
+                scanGateway.visibility = View.GONE
+                scanGateway.text = "Done"
             }
         }
         nodeItems.apply {
@@ -71,25 +76,26 @@ class GatewayActivity : AppCompatActivity(), AnkoLogger {
                     activityNodesObject.data.nodeList.forEach {
                         if (it.shortCode == barcode.displayValue){
                             it.isScanned = true
+                            toast("${it.shortCode} Found it")
                         }
+                        else toast("Didn't found")
                     }
-                    alert(barcode.displayValue).show()
 
-                } else {
-                    info(R.string.barcode_failure)
+                    //alert(barcode.displayValue).show()
 
-                }
-            }else if (requestCode == CommonStatusCodes.RESOLUTION_REQUIRED) {
+                } else info(R.string.barcode_failure)
+
+            }else if (requestCode == CommonStatusCodes.RESOLUTION_REQUIRED)
                 info(String.format(getString(R.string.barcode_error), CommonStatusCodes.getStatusCodeString(resultCode)))
-            }
-            else {
+
+            else
                 info(String.format(getString(R.string.barcode_failure), CommonStatusCodes.getStatusCodeString(resultCode)))
-            }
+
         } else if (requestCode == GATEWAY_BARCODE_CAPTURE){
             gatewayScanned = true
             scanGateway.text = getString(R.string.complete_installation)
             scanGateway.isClickable = false
-            getNodes(113)
+            getNodes(113)       //activityId from previous activity
         } else if (activityComplete){
             scanGateway.isClickable = true
             scanGateway.clearFindViewByIdCache()
@@ -131,7 +137,7 @@ class GatewayActivity : AppCompatActivity(), AnkoLogger {
     }
 
     private fun areAllNodeRegistered () : Boolean {
-        activityNodesObject.data.nodeList.filter { it.isScanned == false}.isEmpty().let {
+        activityNodesObject.data.nodeList.filter { !it.isScanned }.isEmpty().let {
             activityComplete = true
             return true
         }

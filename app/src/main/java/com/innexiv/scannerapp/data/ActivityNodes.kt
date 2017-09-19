@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName
 data class ActivityNodes(@SerializedName("equipment_layer") val equipmentLayer: List<EquipmentLayer>,
                          @SerializedName("data") val data: nodeData)
 
-data class nodeData (@SerializedName(value="1", alternate= arrayOf()) val nodeList: List<dataItem>)
+data class nodeData (@SerializedName("1") val nodeList: List<dataItem>)
 
 data class dataItem(@SerializedName("equipment_id") val equipmentId: Int,
                     @SerializedName("item_quantity") val itemQuantity: Int,
