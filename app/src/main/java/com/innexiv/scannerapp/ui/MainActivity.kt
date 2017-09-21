@@ -32,6 +32,8 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
     companion object {
         private val LOGIN_SUCCESS = "success"
+        private val KEY_USER = "keyUserId"
+        private val KEY_TOKEN = "keyToken"
     }
     private var disposable: Disposable? = null
 
@@ -80,11 +82,13 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                         {
                             //result?.token?.let { toast(it) }
                             if (it.status == LOGIN_SUCCESS && it.token.isNotEmpty())
-                                startActivity<RoutesActivity>("token" to it.token)
+                                startActivity<RoutesActivity>(KEY_TOKEN to it.token,
+                                        KEY_USER to loginDetails.email)
 
                         },
                         {
                             error -> debug(error)
+                            alert(error.localizedMessage).show()
                         }
                 )
 

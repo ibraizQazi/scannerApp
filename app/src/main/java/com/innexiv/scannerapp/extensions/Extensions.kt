@@ -7,6 +7,7 @@ import android.net.ConnectivityManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.innexiv.scannerapp.db.DbHelper
 
 fun ViewGroup.inflate(layoutId: Int, attachToRoot: Boolean = false): View {
     return LayoutInflater.from(context).inflate(layoutId, this, attachToRoot)
@@ -17,3 +18,4 @@ fun Context.isNetworkConnected(): Boolean {
     val networkInfo = connectivityManager.activeNetworkInfo
     return networkInfo != null && networkInfo.isConnected
 }
+

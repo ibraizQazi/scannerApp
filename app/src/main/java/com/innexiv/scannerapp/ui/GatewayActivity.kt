@@ -3,7 +3,6 @@ package com.innexiv.scannerapp.ui
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.support.transition.Visibility
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import android.widget.LinearLayout
@@ -12,14 +11,18 @@ import com.google.android.gms.vision.barcode.Barcode
 import com.innexiv.scannerapp.R
 import com.innexiv.scannerapp.adapter.NodesAdapter
 import com.innexiv.scannerapp.data.ActivityNodes
+import com.innexiv.scannerapp.data.DbNodeModel
 import com.innexiv.scannerapp.data.InnexivApi
-import com.jakewharton.rxbinding2.view.clickable
+import com.innexiv.scannerapp.db.DbManager
+import com.innexiv.scannerapp.db.NodeTable
+import com.innexiv.scannerapp.db.database
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.*
 import kotlinx.android.synthetic.main.activity_gateway.*
 import org.jetbrains.anko.*
+import org.jetbrains.anko.db.insert
 
 class GatewayActivity : AppCompatActivity(), AnkoLogger {
 
@@ -33,7 +36,9 @@ class GatewayActivity : AppCompatActivity(), AnkoLogger {
 
     companion object {
         private val KEY_ACTIVITY_ID = "keyActivityId"
-        private val KEY_NODE_SHORTCODE = "keyNodeShortCode"
+        private val KEY_ROUTE_ID = "keyRouteId"
+        private val KEY_SITE_ID = "keySiteId"
+        private val KEY_USER_ID = "keyUserId"
         private val RC_BARCODE_CAPTURE = 9001
         private val GATEWAY_BARCODE_CAPTURE = 8001
 
@@ -48,63 +53,72 @@ class GatewayActivity : AppCompatActivity(), AnkoLogger {
         //toast ("Site id = $activityId")
 
         gatewayInfo.text = activityId.toString()
+        gatewayInfo2.text = activityComplete.toString()
+
+        getNodes(113)       //activityId from previous activity
+
+        nodeItems.apply {
+            setHasFixedSize(true)
+            layoutManager = LinearLayoutManager(this@GatewayActivity, LinearLayout.VERTICAL, false)
+            visibility = View.GONE
+        }
 
         scanGateway.setOnClickListener {
             if (!gatewayScanned){
                 val i = Intent(this, BarcodeCaptureActivity::class.java)
-                i.putExtra(BarcodeCaptureActivity.AutoFocus, true)
-                i.putExtra(BarcodeCaptureActivity.UseFlash,false)
-                i.putExtra(BarcodeCaptureActivity.AutoCapture, true)
+                i.putExtra(BarcodeCaptureActivity.AutoFocus, autoFocus.isChecked)
+                i.putExtra(BarcodeCaptureActivity.UseFlash, useFlash.isChecked)
+                i.putExtra(BarcodeCaptureActivity.AutoCapture, autoCapture.isChecked)
 
                 startActivityForResult(i, GATEWAY_BARCODE_CAPTURE )
-            } else {
-                scanGateway.visibility = View.GONE
-                scanGateway.text = "Done"
+            } else if(areAllNodeRegistered()) {
+                toast("activity should be complete.")
+                scanGateway.visibility = View.VISIBLE
+                nodeItems.visibility = View.VISIBLE
+                finish()
             }
-        }
-        nodeItems.apply {
-            setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(this@GatewayActivity, LinearLayout.VERTICAL, false)
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == RC_BARCODE_CAPTURE) {
-            if (resultCode == CommonStatusCodes.SUCCESS) {
-                if (data != null) {
-                    val barcode: Barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject)
-                    activityNodesObject.data.nodeList.forEach {
-                        if (it.shortCode == barcode.displayValue){
-                            it.isScanned = true
-                            toast("${it.shortCode} Found it")
-                        }
-                        else toast("Didn't found")
+
+        when(requestCode){
+            RC_BARCODE_CAPTURE ->
+                when (resultCode) {
+                    CommonStatusCodes.SUCCESS -> data?.let {
+                        val barcode: Barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject)
+                        activityNodesObject.data.nodeList.forEach {
+
+                            if(barcode.displayValue.contains(it.shortCode)) {
+                                it.isScanned = true
+                                toast("${it.shortCode} Found in ${barcode.displayValue}")
+                                DbManager(database).saveScannedNodes(DbNodeModel(911,
+                                        4,
+                                        113,
+                                        it.equipmentId,
+                                        it.shortCode,
+                                        "20/09/2017",
+                                        "Ibraiz",
+                                        "123123123"))
+                            } else toast("Not found!")
                     }
+                }
+                    CommonStatusCodes.ERROR -> info(R.string.barcode_error)
 
-                    //alert(barcode.displayValue).show()
+                    else -> info(String.format(getString(R.string.barcode_failure), CommonStatusCodes.getStatusCodeString(resultCode)))
+                }
 
-                } else info(R.string.barcode_failure)
-
-            }else if (requestCode == CommonStatusCodes.RESOLUTION_REQUIRED)
+            CommonStatusCodes.RESOLUTION_REQUIRED ->
                 info(String.format(getString(R.string.barcode_error), CommonStatusCodes.getStatusCodeString(resultCode)))
 
-            else
-                info(String.format(getString(R.string.barcode_failure), CommonStatusCodes.getStatusCodeString(resultCode)))
-
-        } else if (requestCode == GATEWAY_BARCODE_CAPTURE){
-            gatewayScanned = true
-            scanGateway.text = getString(R.string.complete_installation)
-            scanGateway.isClickable = false
-            getNodes(113)       //activityId from previous activity
-        } else if (activityComplete){
-            scanGateway.isClickable = true
-            scanGateway.clearFindViewByIdCache()
-            scanGateway.setOnClickListener{
-                finish()
+            GATEWAY_BARCODE_CAPTURE -> {
+                gatewayScanned = true
+                scanGateway.text = getString(R.string.complete_installation)
+                gatewayCard.visibility = View.GONE
+                nodeItems.visibility = View.VISIBLE
             }
-        }
-        else {
-            super.onActivityResult(requestCode, resultCode, data)
+
+            else -> super.onActivityResult(requestCode, resultCode, data)
         }
     }
 
@@ -123,11 +137,11 @@ class GatewayActivity : AppCompatActivity(), AnkoLogger {
                                 //toast("Equipment : ${it.shortCode}")
                                 if (it.isScanned.not()) {
                                     val i = Intent(this, BarcodeCaptureActivity::class.java)
-                                    i.putExtra(BarcodeCaptureActivity.AutoFocus, true)
-                                    i.putExtra(BarcodeCaptureActivity.UseFlash, false)
+                                    i.putExtra(BarcodeCaptureActivity.AutoFocus, autoFocus.isChecked)
+                                    i.putExtra(BarcodeCaptureActivity.UseFlash, useFlash.isChecked)
+                                    i.putExtra(BarcodeCaptureActivity.AutoCapture, autoCapture.isChecked)
                                     startActivityForResult(i, RC_BARCODE_CAPTURE)
                                 }
-                                //startActivity<BarcodeCaptureActivity>("nodeId" to it.shortCode)
                             }
                         },
                         {
@@ -137,9 +151,9 @@ class GatewayActivity : AppCompatActivity(), AnkoLogger {
     }
 
     private fun areAllNodeRegistered () : Boolean {
-        activityNodesObject.data.nodeList.filter { !it.isScanned }.isEmpty().let {
+        activityNodesObject.data.nodeList.none { !it.isScanned }.let {
             activityComplete = true
-            return true
+            return activityComplete
         }
     }
 }

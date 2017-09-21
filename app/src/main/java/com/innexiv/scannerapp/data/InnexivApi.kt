@@ -33,12 +33,6 @@ interface InnexivApi {
     @POST("index.php?r=sitedna/getequipmentlayer")
     fun getNodesInfo(@Field("activity_id", encoded = true) activity: Int) : Observable<ActivityNodes>
 
-    //it fetches all the sites but NOT in use
-    @FormUrlEncoded
-    @POST("index.php?r=site/getsites")
-    fun getSiteData(@Field("id", encoded = true) emailAddress: String,
-                    @Field("pass", encoded = true) password: String) : Observable<SiteResponse>
-
     companion object {
         fun create(): InnexivApi {
 

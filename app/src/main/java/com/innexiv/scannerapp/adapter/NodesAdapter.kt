@@ -4,7 +4,6 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
 import com.innexiv.scannerapp.R
-import com.innexiv.scannerapp.data.SiteObject
 import com.innexiv.scannerapp.data.dataItem
 import com.innexiv.scannerapp.extensions.inflate
 import kotlinx.android.synthetic.main.nodes_row.view.*

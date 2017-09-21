@@ -22,6 +22,9 @@ class RouteSitesActivity : AppCompatActivity(), AnkoLogger {
     companion object {
         private val KEY_ACTIVITY_ID = "keyActivityId"
         private val KEY_ROUTES_SITE_LIST = "routesSiteList"
+        private val KEY_ROUTE_ID = "keyRouteId"
+        private val KEY_SITE_ID = "keySiteId"
+        private val KEY_USER_ID = "keyUserId"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,7 +39,9 @@ class RouteSitesActivity : AppCompatActivity(), AnkoLogger {
             adapter = RoutesAdapter(siteListFromIntent){
                 //val pos = distFrom(33.69, 73.05, it.latitude!!.toDouble(), it.longitude!!.toDouble())
                 //toast("${it.id} in radius? Ans: $pos")
-                startActivity<GatewayActivity>(KEY_ACTIVITY_ID to it.activityId)
+                startActivity<GatewayActivity>(KEY_ACTIVITY_ID to it.activityId,
+                        KEY_ROUTE_ID to it.routeId,
+                        KEY_SITE_ID to it.siteId)
                 //val i = Intent(this@RouteSitesActivity, BarcodeCaptureActivity::class.java)
             }
         }

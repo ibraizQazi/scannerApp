@@ -10,6 +10,8 @@ import com.innexiv.scannerapp.adapter.RoutesSiteAdapter
 import com.innexiv.scannerapp.data.InnexivApi
 import com.innexiv.scannerapp.data.RouteSite
 import com.innexiv.scannerapp.data.RoutesResponse
+import com.innexiv.scannerapp.db.DbManager
+import com.innexiv.scannerapp.db.database
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -21,6 +23,8 @@ class RoutesActivity : AppCompatActivity(), AnkoLogger {
 
     companion object {
         private val KEY_ROUTE_SITES = "routesSiteList"
+        private val KEY_USER = "keyUserId"
+        private val KEY_TOKEN = "keyToken"
     }
     private var disposable: Disposable? = null
 
@@ -35,9 +39,15 @@ class RoutesActivity : AppCompatActivity(), AnkoLogger {
         setContentView(R.layout.activity_routes)
 
         //routesList.layoutManager = LinearLayoutManager(this, LinearLayout.VERTICAL, false)
-        intent?.let {
-           toast( it.getStringExtra("token") )
-        }
+        val token = intent?.getStringExtra(KEY_TOKEN)
+
+
+        val userId = intent?.getStringExtra(KEY_USER)
+
+        val count = DbManager(database).getCount()
+
+        toast("Token: $token \n User: $userId \n Count: $count")
+
         routesList.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(this@RoutesActivity, LinearLayout.VERTICAL, false)
@@ -65,6 +75,7 @@ class RoutesActivity : AppCompatActivity(), AnkoLogger {
                                     siteList = getRelevantRoutes(it.id)
                                     val i = Intent(this, RouteSitesActivity::class.java)
                                     i.putParcelableArrayListExtra(KEY_ROUTE_SITES,ArrayList(siteList))
+                                    i.putExtra(KEY_USER, intent.getStringArrayExtra("keyUserId"))
                                     startActivity(i)
                                 } else
                                      toast ("No sites available for this Route: ${it.name}")
