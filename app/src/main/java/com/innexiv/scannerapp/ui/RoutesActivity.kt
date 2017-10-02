@@ -10,21 +10,18 @@ import com.innexiv.scannerapp.adapter.RoutesSiteAdapter
 import com.innexiv.scannerapp.data.InnexivApi
 import com.innexiv.scannerapp.data.RouteSite
 import com.innexiv.scannerapp.data.RoutesResponse
-import com.innexiv.scannerapp.db.DbManager
-import com.innexiv.scannerapp.db.database
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_routes.*
 import org.jetbrains.anko.*
+import java.util.*
 
 
 class RoutesActivity : AppCompatActivity(), AnkoLogger {
 
     companion object {
-        private val KEY_ROUTE_SITES = "routesSiteList"
-        private val KEY_USER = "keyUserId"
-        private val KEY_TOKEN = "keyToken"
+        val KEY_ROUTE_SITES = "routesSiteList"
     }
     private var disposable: Disposable? = null
 
@@ -34,19 +31,14 @@ class RoutesActivity : AppCompatActivity(), AnkoLogger {
     private lateinit var siteList: List<RouteSite>
     private lateinit var routeResponseObject : RoutesResponse
 
+    private val user by lazy { intent.getStringExtra(MainActivity.KEY_USER) }
+    private val password by lazy { intent.getStringExtra(MainActivity.KEY_PASSWORD)}
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_routes)
 
-        //routesList.layoutManager = LinearLayoutManager(this, LinearLayout.VERTICAL, false)
-        val token = intent?.getStringExtra(KEY_TOKEN)
-
-
-        val userId = intent?.getStringExtra(KEY_USER)
-
-        val count = DbManager(database).getCount()
-
-        toast("Token: $token \n User: $userId \n Count: $count")
+        //val count = DbManager(database).getCount()
 
         routesList.apply {
             setHasFixedSize(true)
@@ -63,7 +55,8 @@ class RoutesActivity : AppCompatActivity(), AnkoLogger {
 
 
     private fun getRoutes(){
-        disposable = innexivApiService.getRoutes("shahab.alam@innexiv.com", "test123")
+        disposable = innexivApiService.getRoutes(user.toString(), password.toString())
+        //disposable = innexivApiService.getRoutes("shahab.alam@innexiv.com", "test123")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -74,8 +67,9 @@ class RoutesActivity : AppCompatActivity(), AnkoLogger {
                                 if (getRelevantRoutes(it.id).isNotEmpty()) {
                                     siteList = getRelevantRoutes(it.id)
                                     val i = Intent(this, RouteSitesActivity::class.java)
-                                    i.putParcelableArrayListExtra(KEY_ROUTE_SITES,ArrayList(siteList))
-                                    i.putExtra(KEY_USER, intent.getStringArrayExtra("keyUserId"))
+                                    i.putParcelableArrayListExtra(KEY_ROUTE_SITES, ArrayList(siteList))
+                                    i.putExtra(MainActivity.KEY_USER, user)
+                                    i.putExtra(MainActivity.KEY_PASSWORD, password)
                                     startActivity(i)
                                 } else
                                      toast ("No sites available for this Route: ${it.name}")
@@ -86,6 +80,7 @@ class RoutesActivity : AppCompatActivity(), AnkoLogger {
                         },
                         {
                             error { it.message }
+                            //add a dialog and finish activity on dialog close
                         }
                 )
 

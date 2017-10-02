@@ -1,16 +1,16 @@
 package com.innexiv.scannerapp.data
 
 import com.innexiv.scannerapp.BuildConfig
-import com.innexiv.scannerapp.ui.GatewayActivity
+import com.squareup.moshi.KotlinJsonAdapterFactory
+import com.squareup.moshi.Moshi
 import retrofit2.Call
 import retrofit2.Retrofit
 import io.reactivex.Observable
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.*
-import java.io.IOException
 
 
 interface InnexivApi {
@@ -31,7 +31,7 @@ interface InnexivApi {
 
     @FormUrlEncoded
     @POST("index.php?r=sitedna/getequipmentlayer")
-    fun getNodesInfo(@Field("activity_id", encoded = true) activity: Int) : Observable<ActivityNodes>
+    fun getNodesInfo(@Field("activity_id", encoded = true) activityId: Int) : Observable<ActivityNodes>
 
     companion object {
         fun create(): InnexivApi {
@@ -42,11 +42,15 @@ interface InnexivApi {
                     })
                     .build()
 
+            val moshi = Moshi.Builder()
+                    .add(KotlinJsonAdapterFactory())
+                    .build()
+
             val retrofit = Retrofit.Builder()
+                    .baseUrl("http://115.186.155.20:5051/innexiverp/")
                     .client(client)
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .baseUrl("http://115.186.155.20:5051/innexiverp/")
+                    .addConverterFactory(MoshiConverterFactory.create(moshi))
                     .build()
 
             return retrofit.create(InnexivApi::class.java)

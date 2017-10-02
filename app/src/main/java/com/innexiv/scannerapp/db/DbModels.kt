@@ -1,14 +1,17 @@
-package com.innexiv.scannerapp.data
+package com.innexiv.scannerapp.db
+
+import java.time.LocalDateTime
+import java.util.*
 
 
 class DbNodeModel (val routeID: Int,
-                        val siteId: Int,
-                        val activityId: Int,
-                        val equipmentId: Int,
-                        val barcode: String,
-                        val scannedOn: String,
-                        val scannedBy: String,
-                        val deviceImei: String)
+                   val siteId: Int,
+                   val activityId: Int,
+                   val equipmentId: Int,
+                   val barcode: String,
+                   val scannedOn: String,
+                   val scannedBy: String,
+                   val deviceImei: String)
 
 class DbModel (var map: MutableMap<String, Any?>){
     var _id : Long by map

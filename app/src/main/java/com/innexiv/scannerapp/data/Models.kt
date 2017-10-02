@@ -2,10 +2,14 @@ package com.innexiv.scannerapp.data
 
 import android.os.Parcel
 import android.os.Parcelable
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
 
 data class BarcodePost(val barcode: String)
-data class BarcodeResponse (@SerializedName("r") val r: String, @SerializedName("barcode") val barcode: String) : Parcelable {
+data class BarcodeResponse (
+        @Json(name = "r")
+        val r: String,
+        @Json(name = "barcode")
+        val barcode: String) : Parcelable {
 
     companion object {
         @JvmField val CREATOR: Parcelable.Creator<BarcodeResponse> = object : Parcelable.Creator<BarcodeResponse> {
@@ -29,7 +33,11 @@ data class BarcodeResponse (@SerializedName("r") val r: String, @SerializedName(
 
 data class LoginPostBody(var email: String , var password: String, var imei: String)
 
-data class LoginResponse (@SerializedName("status") val status: String, @SerializedName("token") val token: String) : Parcelable {
+data class LoginResponse (
+        @Json(name = "status")
+        val status: String,
+        @Json(name = "token")
+        val token: String) : Parcelable {
 
     companion object {
         @JvmField val CREATOR: Parcelable.Creator<LoginResponse> = object : Parcelable.Creator<LoginResponse> {

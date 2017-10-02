@@ -24,16 +24,16 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import okhttp3.RequestBody
-
-
+import java.util.concurrent.TimeUnit
 
 
 class MainActivity : AppCompatActivity(), AnkoLogger {
 
     companion object {
         private val LOGIN_SUCCESS = "success"
-        private val KEY_USER = "keyUserId"
-        private val KEY_TOKEN = "keyToken"
+        val KEY_USER = "keyUserId"
+        val KEY_PASSWORD = "keyUserPassword"
+        val KEY_TOKEN = "keyToken"
     }
     private var disposable: Disposable? = null
 
@@ -51,13 +51,13 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         login.setOnClickListener{
             if (email.text.isNotEmpty() && email_password.text.isNotEmpty()){
 
-               /* val loginDetails = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                /*val loginDetails = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     LoginPostBody(email.text.toString(),email_password.text.toString(), imei = mngr.imei)
                 } else {
                     LoginPostBody(email.text.toString(),email_password.text.toString(), imei = mngr.deviceId)
                 }*/
 
-                val loginDetails = LoginPostBody("ibraiz.qazi@innexiv.com", "ibraiz123","123123123")
+                val loginDetails = LoginPostBody("shahab.alam@innexiv.com", "test123","123123123")
 
                 isNetworkConnected().let {
                         loginUser(loginDetails)
@@ -80,10 +80,11 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         {
-                            //result?.token?.let { toast(it) }
                             if (it.status == LOGIN_SUCCESS && it.token.isNotEmpty())
                                 startActivity<RoutesActivity>(KEY_TOKEN to it.token,
-                                        KEY_USER to loginDetails.email)
+                                        KEY_USER to loginDetails.email,
+                                        KEY_PASSWORD to loginDetails.password
+                                        )
 
                         },
                         {

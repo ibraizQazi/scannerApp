@@ -1,9 +1,6 @@
 package com.innexiv.scannerapp.db
 
 
-import com.innexiv.scannerapp.data.DbNodeModel
-import io.reactivex.Observable
-
 interface DbSource {
 
     //save scanned node

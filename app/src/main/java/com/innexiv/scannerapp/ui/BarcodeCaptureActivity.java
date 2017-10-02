@@ -79,7 +79,6 @@ public class BarcodeCaptureActivity extends AppCompatActivity implements Barcode
 
     private boolean autoFocus, useFlash, autoCapture;
 
-    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -420,45 +419,13 @@ public class BarcodeCaptureActivity extends AppCompatActivity implements Barcode
 
         if (best != null) {
             //checkNodeBarcode(best);
-            /*Intent data = new Intent();
+            Intent data = new Intent();
             data.putExtra(BarcodeObject, best);
             setResult(CommonStatusCodes.SUCCESS, data);
-            finish();*/
+            finish();
             return true;
         }
         return false;
-    }
-
-    private void checkNodeBarcode( final Barcode best) {
-
-        final BarcodePost obj = new BarcodePost(best.displayValue);
-        Call<BarcodeResponse> call =InnexivApi.Companion.create().sendBarcode(obj);
-        progressDialog = ProgressDialog.show(this, "Checking with server"," please wait...", true);
-
-        call.enqueue(new Callback<BarcodeResponse>() {
-            @Override
-            public void onResponse(Call<BarcodeResponse> call, Response<BarcodeResponse> response) {
-                if (response.isSuccessful()){
-
-                    Intent data = new Intent();
-                    data.putExtra(BarcodeObject, best);
-                    setResult(CommonStatusCodes.SUCCESS, data);
-                    progressDialog.dismiss();
-                    finish();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<BarcodeResponse> call, Throwable t) {
-                Log.d(TAG, "onFailure: "+t.getMessage());
-                Intent data = new Intent();
-                data.putExtra(BarcodeObject, best);
-                setResult(CommonStatusCodes.RESOLUTION_REQUIRED, data);
-                progressDialog.dismiss();
-                finish();
-            }
-        });
-
     }
 
     @Override

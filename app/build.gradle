@@ -22,23 +22,26 @@ android {
 }
 
 dependencies {
+
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    implementation('com.squareup.retrofit2:retrofit:2.3.0') {
-        exclude module: 'okhttp'
-    }
+
     compile "org.jetbrains.anko:anko-commons:$anko_version"
     compile "org.jetbrains.anko:anko-sqlite:$anko_version"
 
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 
-    implementation 'com.google.android.gms:play-services-vision:11.2.2'
+    implementation 'com.google.android.gms:play-services-vision:11.4.0'
 
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
 
-    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
+
+    implementation('com.squareup.retrofit2:retrofit:2.3.0') {
+        exclude module: 'okhttp'
+    }
+
+    implementation 'com.squareup.moshi:moshi-kotlin:1.5.0'
+
+    implementation 'com.squareup.retrofit2:converter-moshi:2.3.0'
     implementation 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
     implementation 'com.squareup.okhttp3:okhttp:3.8.1'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.8.1'
@@ -49,13 +52,23 @@ dependencies {
     implementation 'com.android.support:design:26.0.2'
     implementation 'com.android.support:appcompat-v7:26.0.2'
     implementation 'com.android.support:recyclerview-v7:26.0.2'
-    implementation 'com.jakewharton.rxbinding2:rxbinding-recyclerview-v7-kotlin:2.0.0'
     implementation 'com.android.support:cardview-v7:26.0.2'
 
     //for sqlite debugging
     compile 'com.facebook.stetho:stetho:1.5.0'
 
+
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+
+    //testCompile 'org.mockito:mockito-core:1.+'
     testCompile 'junit:junit:4.12'
+    testCompile "org.robolectric:robolectric:3.2.1"
+    testCompile 'org.jetbrains.kotlin:kotlin-stdlib:1.1.4'
+    testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+    testCompile "com.nhaarman:mockito-kotlin:1.1.0"
+    testCompile 'org.amshove.kluent:kluent:1.14'
 }
 repositories {
     mavenCentral()

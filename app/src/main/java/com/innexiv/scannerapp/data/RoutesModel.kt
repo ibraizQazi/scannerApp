@@ -2,13 +2,18 @@ package com.innexiv.scannerapp.data
 
 import android.os.Parcel
 import android.os.Parcelable
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
 
 
-data class RoutesResponse(@SerializedName("result") val result: String,
-                          @SerializedName("freason") val freason: String,
-                          @SerializedName("route") var routesList: MutableList<RouteObject>,
-                          @SerializedName("route_site") var routeSiteList: MutableList<RouteSite>) : Parcelable {
+data class RoutesResponse(
+        @Json (name = "result")
+        val result: String,
+        @Json(name = "freason")
+        val freason: String,
+        @Json(name = "route")
+        var routesList: List<RouteObject>,
+        @Json(name = "route_site")
+        var routeSiteList: List<RouteSite>) : Parcelable {
 
     companion object {
         @JvmField val CREATOR: Parcelable.Creator<RoutesResponse> = object : Parcelable.Creator<RoutesResponse>{
@@ -34,24 +39,43 @@ data class RoutesResponse(@SerializedName("result") val result: String,
     }
 }
 
-data class RouteObject(@SerializedName("id") val id: Int = 0,
-                       @SerializedName("name") val name: String?,
-                       @SerializedName("route_date") val routeDate: String?,
-                       @SerializedName("end_date") val endDate: String?,
-                       @SerializedName("created_by_id") val createdById: Int = 0,
-                       @SerializedName("team_id") val teamId: Int =0,
-                       @SerializedName("total_total_days") val totalDays: String?,
-                       @SerializedName("total_site_distance") val totalSiteDistance: String?,
-                       @SerializedName("total_site_time") val siteTime: String?,
-                       @SerializedName("total_fuel_cost") val fuelCost: String?,
-                       @SerializedName("total_daily_allownce") val dailyAllowance: String?,
-                       @SerializedName("total_toll_cost") val tollCost: String?,
-                       @SerializedName("total_site_count") val siteCount: Int=0,
-                       @SerializedName("route_status_id") val statusId: Int=0,
-                       @SerializedName("teamlead_id") val teamLeadId: Int=0,
-                       @SerializedName("created_on") val createdOn: String?,
-                       @SerializedName("updated_on") val updatedOn: String?,
-                       @SerializedName("updated_by_id") val updatedById: Int=0) : Parcelable {
+data class RouteObject(
+        @Json(name = "id")
+        val id: Int = 0,
+        @Json(name = "name")
+        val name: String?,
+        @Json(name = "route_date")
+        val routeDate: String?,
+        @Json(name = "end_date")
+        val endDate: String?,
+        @Json(name = "created_by_id")
+        val createdById: Int = 0,
+        @Json(name = "team_id")
+        val teamId: Int =0,
+        @Json(name = "total_total_days")
+        val totalDays: String?,
+        @Json(name = "total_site_distance")
+        val totalSiteDistance: String?,
+        @Json(name = "total_site_time")
+        val siteTime: String?,
+        @Json(name = "total_fuel_cost")
+        val fuelCost: String?,
+        @Json(name = "total_daily_allownce")
+        val dailyAllowance: String?,
+        @Json(name = "total_toll_cost")
+        val tollCost: String?,
+        @Json(name = "total_site_count")
+        val siteCount: Int=0,
+        @Json(name = "route_status_id")
+        val statusId: Int=0,
+        @Json(name = "teamlead_id")
+        val teamLeadId: Int=0,
+        @Json(name = "created_on")
+        val createdOn: String?,
+        @Json(name = "updated_on")
+        val updatedOn: String?,
+        @Json(name = "updated_by_id")
+        val updatedById: Int=0) : Parcelable {
 
     companion object {
         @JvmField val CREATOR: Parcelable.Creator<RouteObject> = object : Parcelable.Creator<RouteObject> {
@@ -94,21 +118,36 @@ data class RouteObject(@SerializedName("id") val id: Int = 0,
 }
 
 data class RouteSite(
-        @SerializedName("id") val id: Int=0,
-        @SerializedName("route_id") val routeId: Int=0,
-        @SerializedName("site_id") val siteId: Int=0,
-        @SerializedName("project_id") val projectId: String?,
-        @SerializedName("activity_id") val activityId: Int=0,
-        @SerializedName("route_site_distance") val routeSiteDistance: String?,
-        @SerializedName("route_site_time") val routeSiteTime: String?,
-        @SerializedName("fuel_cost") val fuelCost: String?,
-        @SerializedName("daily_allownce") val dailyAllowance: String?,
-        @SerializedName("toll_cost") val tollCost: String?,
-        @SerializedName("latitude") val latitude: String?,
-        @SerializedName("longitude") val longitude: String?,
-        @SerializedName("SiteShortCode") val siteShortCode: String?,
-        @SerializedName("visit_date") val visitDate: String?,
-        @SerializedName("visit_order") val visitOrder: Int=0) : Parcelable {
+        @Json(name = "id")
+        val id: Int=0,
+        @Json(name = "route_id")
+        val routeId: Int=0,
+        @Json(name = "site_id")
+        val siteId: Int=0,
+        @Json(name = "project_id")
+        val projectId: String?,
+        @Json(name = "activity_id")
+        val activityId: Int=0,
+        @Json(name = "route_site_distance")
+        val routeSiteDistance: String?,
+        @Json(name = "route_site_time")
+        val routeSiteTime: String?,
+        @Json(name = "fuel_cost")
+        val fuelCost: String?,
+        @Json(name = "daily_allownce")
+        val dailyAllowance: String?,
+        @Json(name = "toll_cost")
+        val tollCost: String?,
+        @Json(name = "latitude")
+        val latitude: String?,
+        @Json(name = "longitude")
+        val longitude: String?,
+        @Json(name = "SiteShortCode")
+        val siteShortCode: String?,
+        @Json(name = "visit_date")
+        val visitDate: String?,
+        @Json(name = "visit_order")
+        val visitOrder: Int=0) : Parcelable {
 
     companion object {
         @JvmField val CREATOR : Parcelable.Creator<RouteSite> = object : Parcelable.Creator<RouteSite> {

@@ -1,5 +1,6 @@
 package com.innexiv.scannerapp.ui
 
+
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
@@ -11,67 +12,51 @@ import kotlinx.android.synthetic.main.activity_route_sites.*
 import org.jetbrains.anko.*
 
 
+
+
 class RouteSitesActivity : AppCompatActivity(), AnkoLogger {
 
-    /*private var disposable: Disposable? = null
-
-    private val innexivApiService by lazy {
-        InnexivApi.create()
-    }*/
-
     companion object {
-        private val KEY_ACTIVITY_ID = "keyActivityId"
-        private val KEY_ROUTES_SITE_LIST = "routesSiteList"
-        private val KEY_ROUTE_ID = "keyRouteId"
-        private val KEY_SITE_ID = "keySiteId"
-        private val KEY_USER_ID = "keyUserId"
+        val KEY_ACTIVITY_ID = "keyActivityId"
+        val KEY_ROUTE_ID = "keyRouteId"
+        val KEY_SITE_ID = "keySiteId"
+        val KEY_USER = "keyUserLogin"
+
+        private val MIN_DISTANCE_CHANGE_FOR_UPDATES: Long = 10 // 10 meters
+
+        // The minimum time between updates in milliseconds
+        private val MIN_TIME_BW_UPDATES = (1000 * 60 * 1).toLong() // 1 minute
+
     }
+
+    //private val mFusedLocationClient: FusedLocationProviderClient? = null
+
+    private val user by lazy { intent.getStringExtra(MainActivity.KEY_USER) }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_route_sites)
 
-        val siteListFromIntent  = intent.getParcelableArrayListExtra<RouteSite>(KEY_ROUTES_SITE_LIST)
+        val siteListFromIntent  = intent.getParcelableArrayListExtra<RouteSite>(RoutesActivity.KEY_ROUTE_SITES)
 
         sitesList.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context, LinearLayout.VERTICAL, false)
-            adapter = RoutesAdapter(siteListFromIntent){
-                //val pos = distFrom(33.69, 73.05, it.latitude!!.toDouble(), it.longitude!!.toDouble())
-                //toast("${it.id} in radius? Ans: $pos")
-                startActivity<GatewayActivity>(KEY_ACTIVITY_ID to it.activityId,
-                        KEY_ROUTE_ID to it.routeId,
-                        KEY_SITE_ID to it.siteId)
-                //val i = Intent(this@RouteSitesActivity, BarcodeCaptureActivity::class.java)
+            adapter = RoutesAdapter(siteListFromIntent) {
+
+
+                /*if(distFrom(location.latitude, location.longitude, it.latitude!!.toDouble(), it.longitude!!.toDouble())){
+                    toast("I'm close")
+                } else { toast("Not")}*/
+
+                startActivity<GatewayActivity>(KEY_USER to user,
+                    KEY_ACTIVITY_ID to it.activityId,
+                    KEY_ROUTE_ID to it.routeId,
+                    KEY_SITE_ID to it.siteId)
             }
         }
-        //getSites()
     }
-
-    override fun onPause() {
-        super.onPause()
-        //disposable?.dispose()
-    }
-
- /*   fun getSites(){
-        disposable = innexivApiService.getSiteData("shahab.alam@innexiv.com","test123")
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                    {
-                        toast(it.siteList.size.toString())
-                        sitesList.adapter = NodesAdapter(it.siteList){
-
-                            startActivity<BarcodeCaptureActivity>()
-                        }
-                        sitesList.adapter.notifyDataSetChanged()
-
-                    },
-                    {
-                        alert(it.message?:"error: ${it.message}").show()
-                    }
-                )
-    }*/
 
 
     fun distFrom(lat1: Double, lng1: Double, lat2: Double, lng2: Double): Boolean {

@@ -1,9 +1,6 @@
 package com.innexiv.scannerapp.db
 
 import android.database.SQLException
-import com.innexiv.scannerapp.data.DbModel
-import com.innexiv.scannerapp.data.DbNodeModel
-import io.reactivex.Observable
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.db.insert
 import org.jetbrains.anko.db.select
@@ -14,7 +11,7 @@ class DbManager(var dbHelper: DbHelper) : DbSource {
     private val log = AnkoLogger("DbManager")
 
     override fun getDbNodesList(): List<DbNodeModel> {
-        
+
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
         //var listDbNodes = mutableListOf<DbNodeModel>()
         /*select(NodeTable.TABLE_NAME).parseList(object: MapRowParser<List<DbNodeModel>> {
