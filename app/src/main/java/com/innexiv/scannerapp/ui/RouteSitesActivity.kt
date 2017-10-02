@@ -1,15 +1,27 @@
 package com.innexiv.scannerapp.ui
 
-
+import android.Manifest
+import android.annotation.SuppressLint
+import android.location.Location
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.widget.LinearLayout
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.innexiv.scannerapp.R
 import com.innexiv.scannerapp.adapter.RoutesAdapter
 import com.innexiv.scannerapp.data.RouteSite
 import kotlinx.android.synthetic.main.activity_route_sites.*
 import org.jetbrains.anko.*
+import android.content.pm.PackageManager
+import android.Manifest.permission
+import android.Manifest.permission.ACCESS_COARSE_LOCATION
+import android.support.v4.app.ActivityCompat
+import android.support.design.widget.Snackbar
+
+
+
 
 
 
@@ -21,18 +33,21 @@ class RouteSitesActivity : AppCompatActivity(), AnkoLogger {
         val KEY_ROUTE_ID = "keyRouteId"
         val KEY_SITE_ID = "keySiteId"
         val KEY_USER = "keyUserLogin"
-
-        private val MIN_DISTANCE_CHANGE_FOR_UPDATES: Long = 10 // 10 meters
-
-        // The minimum time between updates in milliseconds
-        private val MIN_TIME_BW_UPDATES = (1000 * 60 * 1).toLong() // 1 minute
-
+        private val REQUEST_PERMISSIONS_REQUEST_CODE = 34
     }
 
-    //private val mFusedLocationClient: FusedLocationProviderClient? = null
+    private val fusedLocationClient : FusedLocationProviderClient by lazy {
+        LocationServices.getFusedLocationProviderClient(this)
+    }
+
+    private lateinit var location: Location
 
     private val user by lazy { intent.getStringExtra(MainActivity.KEY_USER) }
 
+    override fun onStart() {
+        super.onStart()
+        getLastLocation()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,20 +61,32 @@ class RouteSitesActivity : AppCompatActivity(), AnkoLogger {
             adapter = RoutesAdapter(siteListFromIntent) {
 
 
-                /*if(distFrom(location.latitude, location.longitude, it.latitude!!.toDouble(), it.longitude!!.toDouble())){
-                    toast("I'm close")
-                } else { toast("Not")}*/
+                if(distFrom(location.latitude, location.longitude, it.latitude!!.toDouble(), it.longitude!!.toDouble())){
 
-                startActivity<GatewayActivity>(KEY_USER to user,
-                    KEY_ACTIVITY_ID to it.activityId,
-                    KEY_ROUTE_ID to it.routeId,
-                    KEY_SITE_ID to it.siteId)
+                    //toast("I'm close")
+                    startActivity<GatewayActivity>(KEY_USER to user,
+                            KEY_ACTIVITY_ID to it.activityId,
+                            KEY_ROUTE_ID to it.routeId,
+                            KEY_SITE_ID to it.siteId)
+
+                } else { toast("Lat : ${location.longitude} \n Long: ${location.latitude} \n Not close!")}
+
+
+            }
+        }
+
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getLastLocation(){
+        fusedLocationClient.lastLocation.addOnCompleteListener(this) {
+            it.result?.let{
+                location = it
             }
         }
     }
 
-
-    fun distFrom(lat1: Double, lng1: Double, lat2: Double, lng2: Double): Boolean {
+    private fun distFrom(lat1: Double, lng1: Double, lat2: Double, lng2: Double): Boolean {
         val earthRadius = 6371.01 //  km
         val dLat = Math.toRadians(lat2 - lat1)
         val dLng = Math.toRadians(lng2 - lng1)
@@ -70,4 +97,17 @@ class RouteSitesActivity : AppCompatActivity(), AnkoLogger {
 
         return (earthRadius * c) < 0.2
     }
+
+    private fun checkPermissions(): Boolean {
+        val permissionState = ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION)
+        return permissionState == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun startLocationPermissionRequest() {
+        ActivityCompat.requestPermissions(this@RouteSitesActivity,
+                arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
+                REQUEST_PERMISSIONS_REQUEST_CODE)
+    }
+
 }

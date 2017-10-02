@@ -1,5 +1,6 @@
 package com.innexiv.scannerapp.adapter
 
+import android.graphics.Color
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
@@ -14,15 +15,17 @@ class NodesAdapter(var siteList: List<dataItem>, val listener: (dataItem) -> Uni
         return ViewHolder(p0.inflate(R.layout.nodes_row))
     }
 
-    override fun onBindViewHolder(p0: ViewHolder, p1: Int) {
-        p0.bindItems(siteList[p1], listener)
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        if (siteList[position].isScanned) {
+            holder.itemView.setBackgroundColor(Color.GREEN)
+        } else {
+            holder.itemView.setBackgroundColor(Color.MAGENTA)
+        }
+        holder.bindItems(siteList[position], listener)
+
     }
 
     override fun getItemCount(): Int = siteList.size
-
-    override fun getItemId(position: Int): Long {
-        return super.getItemId(position)
-    }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
 

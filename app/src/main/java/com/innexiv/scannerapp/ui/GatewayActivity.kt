@@ -184,7 +184,6 @@ class GatewayActivity : AppCompatActivity(), AnkoLogger, View.OnClickListener {
                         },
                         {
                             error { it.message }
-                            finish()
                         }
                 )
     }

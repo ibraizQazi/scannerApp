@@ -31,6 +31,7 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 
     implementation 'com.google.android.gms:play-services-vision:11.4.0'
+    implementation 'com.google.android.gms:play-services-location:11.4.0'
 
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
 
