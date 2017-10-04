@@ -3,6 +3,7 @@ package com.innexiv.scannerapp.data
 import android.os.Parcel
 import android.os.Parcelable
 import com.squareup.moshi.Json
+import com.thoughtbot.expandablerecyclerview.models.ExpandableGroup
 
 data class ActivityNodes(
         @Json(name = "equipment_layer")
@@ -105,3 +106,5 @@ data class EquipmentLayer(
         }
     }
 }
+
+class EquipmentType(title: String, items: List<dataItem>) : ExpandableGroup<dataItem>(title, items)

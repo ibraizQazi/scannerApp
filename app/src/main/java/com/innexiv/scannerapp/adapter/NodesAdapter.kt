@@ -11,14 +11,15 @@ import kotlinx.android.synthetic.main.nodes_row.view.*
 
 class NodesAdapter(var siteList: List<dataItem>, val listener: (dataItem) -> Unit) : RecyclerView.Adapter<NodesAdapter.ViewHolder>() {
 
-    override fun onCreateViewHolder(p0: ViewGroup, p1: Int): ViewHolder {
-        return ViewHolder(p0.inflate(R.layout.nodes_row))
-    }
+    override fun onCreateViewHolder(p0: ViewGroup, p1: Int): ViewHolder = ViewHolder(p0.inflate(R.layout.nodes_row))
+
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         if (siteList[position].isScanned) {
+            //holder.itemView.nodesCard.setCardBackgroundColor(Color.GREEN)
             holder.itemView.setBackgroundColor(Color.GREEN)
         } else {
+            //holder.itemView.nodesCard.setCardBackgroundColor(Color.RED)
             holder.itemView.setBackgroundColor(Color.MAGENTA)
         }
         holder.bindItems(siteList[position], listener)

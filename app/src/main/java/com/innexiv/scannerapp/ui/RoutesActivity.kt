@@ -3,7 +3,9 @@ package com.innexiv.scannerapp.ui
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.widget.LinearLayoutManager
+import android.view.View
 import android.widget.LinearLayout
 import com.innexiv.scannerapp.R
 import com.innexiv.scannerapp.adapter.RoutesSiteAdapter
@@ -14,6 +16,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_routes.*
+import kotlinx.android.synthetic.main.routes_content.*
 import org.jetbrains.anko.*
 import java.util.*
 
@@ -34,11 +37,15 @@ class RoutesActivity : AppCompatActivity(), AnkoLogger {
     private val user by lazy { intent.getStringExtra(MainActivity.KEY_USER) }
     private val password by lazy { intent.getStringExtra(MainActivity.KEY_PASSWORD)}
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_routes)
 
         //val count = DbManager(database).getCount()
+        setSupportActionBar(toolbar)
+
+        initNavigationDrawer()
 
         routesList.apply {
             setHasFixedSize(true)
@@ -53,10 +60,41 @@ class RoutesActivity : AppCompatActivity(), AnkoLogger {
         disposable?.dispose()
     }
 
+    private fun initNavigationDrawer() {
+        navigationView.setNavigationItemSelectedListener { menuItem ->
+            val id = menuItem.itemId
+            when (id) {
+                R.id.option_a -> {
+                    toast( "You Clicked Device Registration")
+                    drawerLayout!!.closeDrawers()
+                }
+                R.id.option_b -> {
+                    toast("You Clicked Field Replacement")
+                    drawerLayout!!.closeDrawers()
+                }
+                R.id.option_c -> {
+                    toast("You Clicked On-Site Inventory")
+                    drawerLayout!!.closeDrawers()
+                }
+            }
+            true
+        }
+        val header = navigationView.getHeaderView(0)
+        val actionBarDrawerToggle = object : ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close) {
+            override fun onDrawerClosed(v: View?) {
+                super.onDrawerClosed(v)
+            }
+
+            override fun onDrawerOpened(v: View?) {
+                super.onDrawerOpened(v)
+            }
+        }
+        drawerLayout!!.addDrawerListener(actionBarDrawerToggle)
+        actionBarDrawerToggle.syncState()
+    }
 
     private fun getRoutes(){
         disposable = innexivApiService.getRoutes(user.toString(), password.toString())
-        //disposable = innexivApiService.getRoutes("shahab.alam@innexiv.com", "test123")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(

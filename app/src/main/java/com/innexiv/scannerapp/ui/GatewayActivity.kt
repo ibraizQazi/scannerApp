@@ -1,14 +1,11 @@
 package com.innexiv.scannerapp.ui
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Parcelable
-import android.os.PersistableBundle
 import android.support.v7.widget.LinearLayoutManager
 import android.telephony.TelephonyManager
 import android.view.View
@@ -16,13 +13,15 @@ import android.widget.LinearLayout
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.vision.barcode.Barcode
 import com.innexiv.scannerapp.R
-import com.innexiv.scannerapp.adapter.NodesAdapter
+import com.innexiv.scannerapp.adapter.NodeDataAdapter
 import com.innexiv.scannerapp.data.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_gateway.*
 import org.jetbrains.anko.*
+import org.w3c.dom.Node
+import java.util.*
 
 @SuppressLint("MissingPermission")
 class GatewayActivity : AppCompatActivity(), AnkoLogger, View.OnClickListener {
@@ -45,10 +44,9 @@ class GatewayActivity : AppCompatActivity(), AnkoLogger, View.OnClickListener {
     private lateinit var activityNodes : ActivityNodes
     private lateinit var list: List<dataItem>
     private lateinit var equipmentTypeList: List<EquipmentLayer>
-    private val nodesTypeMap  by lazy {
-
-    }
     private lateinit var gatewayNode: dataItem
+
+    private lateinit var nodeAdapter : NodeDataAdapter
 
     private val user by lazy { intent.extras[RouteSitesActivity.KEY_USER] }
     private val routeId by lazy { intent.extras[RouteSitesActivity.KEY_ROUTE_ID] }
@@ -167,19 +165,18 @@ class GatewayActivity : AppCompatActivity(), AnkoLogger, View.OnClickListener {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         {
-
-                            activityNodes = it
-
                             list = getSortedList(it.data.toMutableList())
+                            list.groupBy { it.equipmentLayerId }
 
                             equipmentTypeList = it.equipmentLayer
-                            initAdapter(getSortedList(it.data.toMutableList()))
 
+                            activityNodes = ActivityNodes(equipmentTypeList,list)
+
+                            makeCompleteList(activityNodes)?.let { initAdapter(it) }
 
                             gatewayNode = getGateway(it.data)
 
                             gatewayInfo.text = gatewayNode.name
-
 
                         },
                         {
@@ -187,10 +184,23 @@ class GatewayActivity : AppCompatActivity(), AnkoLogger, View.OnClickListener {
                         }
                 )
     }
+    private fun makeCompleteList(activityNodes: ActivityNodes): List<EquipmentType>? {
+        var finalList : MutableList<EquipmentType>? = null
+        for (equipmentLayer in activityNodes.equipmentLayer) {
+            finalList?.add(EquipmentType(equipmentLayer.name,makeDataList(equipmentLayer, activityNodes.data)))
+            toast("${finalList?.first()?.title}")
+        }
+        return finalList
+    }
+
+
+    private fun makeDataList (equipmentObj : EquipmentLayer, itemList: List<dataItem>) : List<dataItem> =
+        itemList.filter { it.equipmentId == equipmentObj.id && it.equipmentLayerName == equipmentObj.name }
+
 
     private fun getSortedList(itemList: MutableList<dataItem>) : List<dataItem> =
          itemList.filter { it.equipmentLayerName != "Gateway" && it.equipmentId != 2 }
-                 .sortedBy { it.equipmentLayerName }
+                 //.sortedBy { it.equipmentLayerName }
 
 
     private fun getGateway (itemList: List<dataItem>) : dataItem =
@@ -205,7 +215,7 @@ class GatewayActivity : AppCompatActivity(), AnkoLogger, View.OnClickListener {
             if (barcode.displayValue.contains(it.shortCode)){
 
                 it.isScanned = true
-                toast("${it.shortCode} Found in ${barcode.displayValue}")
+                toast("${it.name} Found")
 
                 /*DbManager(database).saveScannedNodes(DbNodeModel(
                                     routeID = 911,
@@ -219,7 +229,6 @@ class GatewayActivity : AppCompatActivity(), AnkoLogger, View.OnClickListener {
                 isFound = true
 
             } else {
-                toast("Not the right device")
                 isFound = false
             }
 
@@ -227,7 +236,7 @@ class GatewayActivity : AppCompatActivity(), AnkoLogger, View.OnClickListener {
         return isFound
     }
 
-    fun checkGatewayBarcode (barcode: Barcode) : Boolean{
+    private fun checkGatewayBarcode (barcode: Barcode) : Boolean{
 
 
         var isGateway : Boolean
@@ -250,8 +259,8 @@ class GatewayActivity : AppCompatActivity(), AnkoLogger, View.OnClickListener {
         return isGateway
     }
 
-    private fun initAdapter(itemList : List<dataItem>)  {
-        nodeItems.adapter = NodesAdapter(itemList) {
+    private fun initAdapter(itemList : List<EquipmentType>)  {
+        /*nodeItems.adapter = NodesAdapter(itemList) {
 
             if (it.isScanned.not()) {
                 val i = Intent(this, BarcodeCaptureActivity::class.java)
@@ -261,7 +270,11 @@ class GatewayActivity : AppCompatActivity(), AnkoLogger, View.OnClickListener {
                 startActivityForResult(i, RC_BARCODE_CAPTURE)
             }
 
-        }
+        }*/
+        nodeAdapter = NodeDataAdapter(itemList)
+        nodeItems.adapter = nodeAdapter
+
+
     }
 
     private fun areAllNodeRegistered () : Boolean = list.none { !it.isScanned }
