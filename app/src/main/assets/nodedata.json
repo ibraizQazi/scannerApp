@@ -1,0 +1,90 @@
+{
+    "equipment_layer": [
+        {
+            "id": 2,
+            "name": "Gateway",
+            "detail": "All gateways"
+        },
+        {
+            "id": 3,
+            "name": "Node",
+            "detail": "All Nodes"
+        },
+        {
+            "id": 1,
+            "name": "Miscellaneous",
+            "detail": "All miscellaneous assets"
+        },
+        {
+            "id": 4,
+            "name": "Sensors",
+            "detail": "All Sensors"
+        },
+        {
+            "id": 5,
+            "name": "IRM",
+            "detail": "Installation required material"
+        },
+        {
+            "id": 6,
+            "name": "Communication",
+            "detail": "All communication devices such as Cellular Router, ETU etc. which are purely communication"
+        }
+    ],
+    "data": [
+        {
+            "equipment_id": 345,
+            "item_quantity": 1,
+            "name": "RTU (Old)",
+            "shortcode": "RAN-RTU-PMCL-R1A",
+            "part_number": "787,788,789",
+            "equipment_layer_id": 2,
+            "equipment_layer_name": "Gateway"
+        },
+        {
+            "equipment_id": 356,
+            "item_quantity": 1,
+            "name": "Battery Analyzer (Product) (Old)",
+            "shortcode": "RAN-BAM-PMCL-R1A",
+            "part_number": "787,808,809",
+            "equipment_layer_id": 3,
+            "equipment_layer_name": "Node"
+        },
+        {
+            "equipment_id": 346,
+            "item_quantity": 1,
+            "name": "DC Current Transformer (30mm) (Old)",
+            "shortcode": "SNS-CT-DCI-R1A",
+            "part_number": "718,792,793",
+            "equipment_layer_id": 4,
+            "equipment_layer_name": "Sensors"
+        },
+        {
+            "equipment_id": 350,
+            "item_quantity": 1,
+            "name": "AC Block CT (Old)",
+            "shortcode": "SNS-ACI-BLK-R1A",
+            "part_number": "718,790,791",
+            "equipment_layer_id": 4,
+            "equipment_layer_name": "Sensors"
+        },
+        {
+            "equipment_id": 353,
+            "item_quantity": 1,
+            "name": "DC Current Transformer (20mm) (Old)",
+            "shortcode": "SNS-DCI-CT20m-R1A",
+            "part_number": "718,804,805,",
+            "equipment_layer_id": 1,
+            "equipment_layer_name": "Miscellaneous"
+        },
+        {
+            "equipment_id": 357,
+            "item_quantity": 1,
+            "name": "Fuel Sensor - B4 (Old)",
+            "shortcode": "SNS-FUL-PSR-R1A",
+            "part_number": "718,810,811",
+            "equipment_layer_id": 1,
+            "equipment_layer_name": "Miscellaneous"
+        }
+    ]
+}

@@ -64,13 +64,14 @@ class RouteSitesActivity : AppCompatActivity(), AnkoLogger {
 
         val siteListFromIntent  = intent.getParcelableArrayListExtra<RouteSite>(RoutesActivity.KEY_ROUTE_SITES)
 
+
         sitesList.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context, LinearLayout.VERTICAL, false)
             adapter = RoutesAdapter(siteListFromIntent) {
 
 
-                if(distFrom(location.latitude, location.longitude, it.latitude!!.toDouble(), it.longitude!!.toDouble())){
+                //if(distFrom(location.latitude, location.longitude, it.latitude!!.toDouble(), it.longitude!!.toDouble())){
 
                     //toast("I'm close")
                     startActivity<GatewayActivity>(KEY_USER to user,
@@ -78,7 +79,7 @@ class RouteSitesActivity : AppCompatActivity(), AnkoLogger {
                             KEY_ROUTE_ID to it.routeId,
                             KEY_SITE_ID to it.siteId)
 
-                } else { toast("Lat : ${location.longitude} \n Long: ${location.latitude} \n Not close!")}
+                //} else { toast("Lat : ${location.longitude} \n Long: ${location.latitude} \n Not close!")}
 
 
             }
