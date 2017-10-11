@@ -9,7 +9,7 @@ import com.innexiv.scannerapp.data.RoutesResponse
 import com.innexiv.scannerapp.extensions.inflate
 import kotlinx.android.synthetic.main.sites_row.view.*
 
-class RoutesSiteAdapter  (var routesSiteList: List<RouteObject>,  val listener: (RouteObject) -> Unit) : RecyclerView.Adapter<RoutesSiteAdapter.ViewHolder>() {
+class RoutesSiteAdapter (private var routesSiteList: List<RouteObject>, private val listener: (RouteObject) -> Unit) : RecyclerView.Adapter<RoutesSiteAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): RoutesSiteAdapter.ViewHolder {
         return ViewHolder(p0.inflate(R.layout.sites_row))

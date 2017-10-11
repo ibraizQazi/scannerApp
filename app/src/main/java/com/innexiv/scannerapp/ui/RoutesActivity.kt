@@ -44,7 +44,6 @@ class RoutesActivity : AppCompatActivity(), AnkoLogger {
 
         //val count = DbManager(database).getCount()
         setSupportActionBar(toolbar)
-
         initNavigationDrawer()
 
         routesList.apply {

@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.innexiv.scannerapp.ui.MainActivity"
-    android:id="@+id/topLayout">
+    android:id="@+id/topLayout"
+    android:background="#c5cae9">
 
 
     <EditText

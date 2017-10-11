@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     tools:context="com.innexiv.scannerapp.ui.GatewayActivity"
     tools:layout_editor_absoluteX="0dp"
-    tools:layout_editor_absoluteY="50dp">
+    tools:layout_editor_absoluteY="50dp"
+    android:background="#c5cae9">
 
     <android.support.v7.widget.CardView
         android:id="@+id/gatewayCard"
@@ -28,8 +29,8 @@
             tools:layout_editor_absoluteY="0dp">
 
             <TextView
-                android:id="@+id/gatewayInfo"
-                android:layout_width="wrap_content"
+                android:id="@+id/activityInfo"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:layout_marginEnd="8dp"
@@ -37,61 +38,55 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/scanGateway"
+                app:layout_constraintEnd_toStartOf="@+id/finishActivity"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textStyle="bold"/>
 
 
             <Button
-                android:id="@+id/scanGateway"
-                android:layout_width="wrap_content"
+                android:id="@+id/finishActivity"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:layout_marginStart="8dp"
                 android:clickable="false"
-                android:text="@string/scan_gateway"
+                android:text="@string/finish_activity"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/gatewayInfo"
+                app:layout_constraintStart_toEndOf="@+id/activityInfo"
                 app:layout_constraintTop_toTopOf="parent" />
 
         </android.support.constraint.ConstraintLayout>
 
     </android.support.v7.widget.CardView>
 
-<!--    <android.support.v7.widget.RecyclerView
+    <android.support.v7.widget.RecyclerView
         android:id="@+id/nodeItems"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_margin="5dp"
+        android:clipToPadding="true"
         android:padding="5dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/gatewayCard"
-        tools:layout_editor_absoluteY="19dp" />-->
-
-    <com.mindorks.placeholderview.ExpandablePlaceHolderView
-        android:id="@+id/expandableView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:scrollbars="vertical"
-        android:layout_margin="5dp"
-        android:padding="5dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/useFlash"
+        app:layout_constraintEnd_toEndOf="@+id/autoCapture"
+        app:layout_constraintStart_toStartOf="@+id/autoFocus"
         app:layout_constraintTop_toBottomOf="@+id/gatewayCard"
-        tools:layout_editor_absoluteY="19dp"/>
+        app:layout_constraintVertical_bias="0.0" />
+
 
     <Switch
         android:id="@+id/autoFocus"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="27dp"
         android:layout_marginBottom="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginStart="16dp"
-        android:text="AutoFocus"
         android:checked="true"
+        android:text="@string/auto_focus"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent" />
 
@@ -100,20 +95,23 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:text="Flash"
+        android:text="@string/use_flash"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
 
     <Switch
         android:id="@+id/autoCapture"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:layout_marginRight="16dp"
-        android:text="Auto-Capture"
         android:checked="true"
+        android:text="@string/auto_capture"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
+
 
 </android.support.constraint.ConstraintLayout>

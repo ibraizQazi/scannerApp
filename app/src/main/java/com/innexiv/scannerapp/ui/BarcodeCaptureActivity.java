@@ -418,7 +418,6 @@ public class BarcodeCaptureActivity extends AppCompatActivity implements Barcode
         }
 
         if (best != null) {
-            //checkNodeBarcode(best);
             Intent data = new Intent();
             data.putExtra(BarcodeObject, best);
             setResult(CommonStatusCodes.SUCCESS, data);

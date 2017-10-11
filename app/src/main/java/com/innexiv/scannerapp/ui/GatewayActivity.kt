@@ -1,24 +1,29 @@
 package com.innexiv.scannerapp.ui
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.widget.LinearLayoutManager
 import android.telephony.TelephonyManager
 import android.view.View
+import android.widget.LinearLayout
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.vision.barcode.Barcode
 import com.innexiv.scannerapp.R
-import com.innexiv.scannerapp.adapter.HeadingView
-import com.innexiv.scannerapp.adapter.NodeView
+import com.innexiv.scannerapp.adapter.NodesAdapter
+import com.innexiv.scannerapp.commons.ViewType
 import com.innexiv.scannerapp.data.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_gateway.*
 import org.jetbrains.anko.*
+import java.util.*
+import kotlin.collections.LinkedHashMap
 
 @SuppressLint("MissingPermission")
 class GatewayActivity : AppCompatActivity(), AnkoLogger, View.OnClickListener {
@@ -35,13 +40,12 @@ class GatewayActivity : AppCompatActivity(), AnkoLogger, View.OnClickListener {
         val GATEWAY_SHORTCODE = "keyGatewayShortcode"
         private val DATA_ITEM_LIST = "keyDataItemList"
     }
-    private var gatewayScanned = false
+
     private var activityComplete = false
 
     private lateinit var activityNodes : ActivityNodes
-    private lateinit var list: List<dataItem>
+    private lateinit var list: List<DataItem>
     private lateinit var equipmentTypeList: List<EquipmentLayer>
-    private lateinit var gatewayNode: dataItem
 
     private val user by lazy { intent.extras[RouteSitesActivity.KEY_USER] }
     private val routeId by lazy { intent.extras[RouteSitesActivity.KEY_ROUTE_ID] }
@@ -61,16 +65,18 @@ class GatewayActivity : AppCompatActivity(), AnkoLogger, View.OnClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_gateway)
 
-        // /getNodes(activityId as Int)       //activityId from previous activity
+        // getNodes(activityId as Int)       //activityId from previous activity
         getNodes(113)
         //longToast ("Activity id = $activityId \n $user \n $routeId \n $siteId \n $imei")
+        activityInfo.text = "Activity ID: 113"
 
-       /* nodeItems.apply {
-            setHasFixedSize(true)
+        nodeItems.apply {
+            setHasFixedSize(false)
             layoutManager = LinearLayoutManager(this@GatewayActivity, LinearLayout.VERTICAL, false)
-        }*/
+        }
 
-        scanGateway.setOnClickListener(this)
+        finishActivity.isClickable = activityComplete
+        finishActivity.setOnClickListener(this)
 
         savedInstanceState?.let {
 
@@ -83,26 +89,18 @@ class GatewayActivity : AppCompatActivity(), AnkoLogger, View.OnClickListener {
     }
 
     override fun onClick(gatewayBtn: View?) {
-        if (!gatewayScanned){
+        if(areAllNodeRegistered()) {
 
-            val i = Intent(this, BarcodeCaptureActivity::class.java)
-            i.putExtra(BarcodeCaptureActivity.AutoFocus, autoFocus.isChecked)
-            i.putExtra(BarcodeCaptureActivity.UseFlash, useFlash.isChecked)
-            i.putExtra(BarcodeCaptureActivity.AutoCapture, autoCapture.isChecked)
-            startActivityForResult(i, GATEWAY_BARCODE_CAPTURE )
-
-        } else if(areAllNodeRegistered()) {
-
-            toast("activity should be complete.")
-            //scanGateway.visibility = View.VISIBLE
-            //nodeItems.visibility = View.VISIBLE
+            info("Activity completed.")
             finish()
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
-        val barcode: Barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject)
+        if (resultCode != Activity.RESULT_CANCELED && data != null){
+
+            val barcode: Barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject)
 
             when (requestCode) {
                 RC_BARCODE_CAPTURE ->
@@ -116,7 +114,7 @@ class GatewayActivity : AppCompatActivity(), AnkoLogger, View.OnClickListener {
                         CommonStatusCodes.ERROR -> info(R.string.barcode_error)
 
                         else -> {
-                            debug("should not be here")
+                            info("should not be here")
                             info(String.format(getString(R.string.barcode_failure), CommonStatusCodes.getStatusCodeString(resultCode)))
                         }
                     }
@@ -124,20 +122,21 @@ class GatewayActivity : AppCompatActivity(), AnkoLogger, View.OnClickListener {
                 CommonStatusCodes.RESOLUTION_REQUIRED ->
                     info(String.format(getString(R.string.barcode_error), CommonStatusCodes.getStatusCodeString(resultCode)))
 
-                GATEWAY_BARCODE_CAPTURE -> {
-                    when(resultCode){
-                        CommonStatusCodes.SUCCESS -> barcode.let {
-                            debug("barcode : ${it.displayValue}")
-                            gatewayScanned = checkGatewayBarcode(it)
+            /*GATEWAY_BARCODE_CAPTURE -> {
+                        when(resultCode){
+                            CommonStatusCodes.SUCCESS -> barcode.let {
+                                info("barcode : ${it.displayValue}")
+
+                            }
+
+                            else -> error("barcode not captured")
                         }
 
-                        else -> debug("barcode not captured")
                     }
-
-                }
-
+    */
                 else -> super.onActivityResult(requestCode, resultCode, data)
             }
+        } else super.onActivityResult(requestCode, resultCode, data)
 
     }
 
@@ -160,19 +159,13 @@ class GatewayActivity : AppCompatActivity(), AnkoLogger, View.OnClickListener {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         {
-                            list = getSortedList(it.data.toMutableList())
-                            list.groupBy { it.equipmentLayerId }
-
+                            list = it.data
                             equipmentTypeList = it.equipmentLayer
 
                             activityNodes = ActivityNodes(equipmentTypeList,list)
 
-                            //makeCompleteList(activityNodes)?.let { initAdapter(it) }
-                            activityNodes.let {
-                                makeExpandableView(it)
-                            }
-                            gatewayNode = getGateway(it.data)
-                            gatewayNode.let { gatewayInfo.text = it.name }
+                            initAdapter(getFinalList(toMap(equipmentTypeList)))
+
                         },
                         {
 
@@ -180,29 +173,50 @@ class GatewayActivity : AppCompatActivity(), AnkoLogger, View.OnClickListener {
                         }
                 )
     }
-    private fun makeExpandableView(activityNodes: ActivityNodes){
-        for (equipmentLayer in activityNodes.equipmentLayer)  {
 
-            expandableView.addView( HeadingView(equipmentLayer.name) )
-            val dataList: List<dataItem> = makeDataList(equipmentLayer,activityNodes.data)
+    private fun getFinalList(map: LinkedHashMap<EquipmentLayer, List<DataItem>>) : List<ViewType> {
 
-            for (it in dataList) {
-                expandableView.addView(NodeView(it))
+        val finalViewList = mutableListOf<ViewType>()
+
+        for (key in map.keys) {
+
+            val equipment = EquipmentItem(key)
+
+            if (map[key]?.isNotEmpty()!!) {
+
+                finalViewList.add(equipment)
+
+                map[key]?.forEach { item ->
+
+                    info("data : ${item.name}")
+                    finalViewList.add(DataListItem(item))
+                }
             }
         }
+
+        return finalViewList
     }
 
+    private fun toMap(dataList: List<EquipmentLayer>) : LinkedHashMap<EquipmentLayer, List<DataItem>> {
+        val map = linkedMapOf<EquipmentLayer, List<DataItem>>()
+        for (it in dataList) {
+            info("${it.name} size: ${getFilteredList(it.id).size}")
+            val filteredList = getFilteredList(it.id)
+            if (filteredList.isNotEmpty())
+                map.put(it, filteredList)
+        }
+        return map
+    }
 
-    private fun makeDataList (equipmentObj : EquipmentLayer, itemList: List<dataItem>) : List<dataItem> =
-        itemList.filter { it.equipmentId == equipmentObj.id && it.equipmentLayerName == equipmentObj.name }
+    private fun getFilteredList(id: Int) : List<DataItem> =
+            list.filter { it.equipmentLayerId == id }
 
+    private fun getSortedList(itemList: MutableList<DataItem>) : List<DataItem> =
+         itemList
+                 .filter { it.equipmentLayerName != "Gateway" && it.equipmentId != 2 }
+                 .sortedBy { it.equipmentLayerName }
 
-    private fun getSortedList(itemList: MutableList<dataItem>) : List<dataItem> =
-         itemList.filter { it.equipmentLayerName != "Gateway" && it.equipmentId != 2 }
-                 //.sortedBy { it.equipmentLayerName }
-
-
-    private fun getGateway (itemList: List<dataItem>) : dataItem =
+    private fun getGateway (itemList: List<DataItem>) : DataItem =
          itemList.asSequence()
                  .first { it.equipmentLayerId == 2 && it.equipmentLayerName == "Gateway"}
 
@@ -232,34 +246,13 @@ class GatewayActivity : AppCompatActivity(), AnkoLogger, View.OnClickListener {
             }
 
         }
+        nodeItems.adapter.notifyDataSetChanged()
         return isFound
     }
 
-    private fun checkGatewayBarcode (barcode: Barcode) : Boolean{
+    private fun initAdapter(finalViewList: List<ViewType> )  {
 
-
-        var isGateway : Boolean
-        //trimming last 5 characters               gatewayNode.shortCode
-        //if (barcodeString.dropLast(5).contentEquals("")) {
-        //var barcodeString = barcode.displayValue.toString()
-        var barcodeString = "RAN-RTU-PMCL-R1A"
-        if (barcodeString == gatewayNode.shortCode){
-
-            gatewayNode.isScanned = true
-            scanGateway.text = getString(R.string.complete_installation)
-            //gatewayCard.visibility = View.GONE
-            //nodeItems.visibility = View.VISIBLE
-
-            isGateway = true
-        } else {
-            toast("Not the right gateway device ${gatewayNode.shortCode.dropLast(5)}")
-            isGateway = false
-        }
-        return isGateway
-    }
-
-    private fun initAdapter(itemList : List<dataItem>)  {
-        /*nodeItems.adapter = NodesAdapter(itemList) {
+        nodeItems.adapter = NodesAdapter(finalViewList){
 
             if (it.isScanned.not()) {
                 val i = Intent(this, BarcodeCaptureActivity::class.java)
@@ -269,8 +262,7 @@ class GatewayActivity : AppCompatActivity(), AnkoLogger, View.OnClickListener {
                 startActivityForResult(i, RC_BARCODE_CAPTURE)
             }
 
-        }*/
-
+        }
     }
 
     private fun areAllNodeRegistered () : Boolean = list.none { !it.isScanned }

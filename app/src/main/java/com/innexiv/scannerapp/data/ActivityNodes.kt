@@ -2,13 +2,14 @@ package com.innexiv.scannerapp.data
 
 import android.os.Parcel
 import android.os.Parcelable
+import com.innexiv.scannerapp.commons.ViewType
 import com.squareup.moshi.Json
 
 data class ActivityNodes(
         @Json(name = "equipment_layer")
         val equipmentLayer: List<EquipmentLayer>,
         @Json(name = "data")
-        val data: List<dataItem>) : Parcelable {
+        val data: List<DataItem>) : Parcelable {
 
     companion object {
         @JvmField val CREATOR : Parcelable.Creator<ActivityNodes> = object : Parcelable.Creator<ActivityNodes> {
@@ -16,7 +17,7 @@ data class ActivityNodes(
             override fun newArray(p0: Int): Array<ActivityNodes?> = arrayOfNulls(p0)
         }
     }
-    constructor(source: Parcel) : this (source.createTypedArrayList(EquipmentLayer.CREATOR), source.createTypedArrayList(dataItem.CREATOR))
+    constructor(source: Parcel) : this (source.createTypedArrayList(EquipmentLayer.CREATOR), source.createTypedArrayList(DataItem.CREATOR))
 
     override fun describeContents(): Int = 0
 
@@ -30,7 +31,7 @@ data class ActivityNodes(
     }
 }
 
-data class dataItem(
+data class DataItem(
         @Json(name = "equipment_id")
         val equipmentId: Int,
         @Json(name = "item_quantity")
@@ -47,10 +48,11 @@ data class dataItem(
         val equipmentLayerName: String,
         var isScanned: Boolean = false ) : Parcelable {
 
+
     companion object {
-        @JvmField val CREATOR: Parcelable.Creator<dataItem> = object : Parcelable.Creator<dataItem> {
-            override fun createFromParcel(source: Parcel): dataItem = dataItem(source)
-            override fun newArray(size: Int): Array<dataItem?> = arrayOfNulls(size)
+        @JvmField val CREATOR: Parcelable.Creator<DataItem> = object : Parcelable.Creator<DataItem> {
+            override fun createFromParcel(source: Parcel): DataItem = DataItem(source)
+            override fun newArray(size: Int): Array<DataItem?> = arrayOfNulls(size)
         }
     }
 
@@ -75,14 +77,14 @@ data class dataItem(
     }
 }
 
-
 data class EquipmentLayer(
         @Json(name = "id")
         val id: Int,
         @Json(name = "name")
         val name: String,
         @Json(name = "detail")
-        val details: String) : Parcelable {
+        val details: String) :  Parcelable {
+
 
     companion object {
         @JvmField val CREATOR: Parcelable.Creator<EquipmentLayer> = object : Parcelable.Creator<EquipmentLayer> {
@@ -106,3 +108,10 @@ data class EquipmentLayer(
     }
 }
 
+data class DataListItem(val dataItem: DataItem) : ViewType{
+    override fun getViewType(): Int = ViewType.TYPE_NODE
+}
+
+data class EquipmentItem(val equipmentItem: EquipmentLayer) : ViewType {
+    override fun getViewType(): Int = ViewType.TYPE_EQUIPMENT
+}
