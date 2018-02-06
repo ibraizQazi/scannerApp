@@ -26,8 +26,7 @@ import android.provider.Settings
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.support.annotation.NonNull
 import com.innexiv.scannerapp.BuildConfig
-
-
+import com.innexiv.scannerapp.services.LocationService
 
 
 class RouteSitesActivity : AppCompatActivity(), AnkoLogger {
@@ -64,6 +63,7 @@ class RouteSitesActivity : AppCompatActivity(), AnkoLogger {
 
         val siteListFromIntent  = intent.getParcelableArrayListExtra<RouteSite>(RoutesActivity.KEY_ROUTE_SITES)
 
+        startService(Intent(this,LocationService::class.java))
 
         sitesList.apply {
             setHasFixedSize(true)

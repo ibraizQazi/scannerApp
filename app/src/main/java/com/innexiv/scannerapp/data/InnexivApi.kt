@@ -25,7 +25,7 @@ interface InnexivApi {
     fun sendBarcode(@Body barcodePost: BarcodePost) : Call<BarcodeResponse>
 
     @FormUrlEncoded
-    @POST("index.php?r=site/getroute")
+    @POST("index.php?r=sitedna/iscangetroute")
     fun getRoutes(@Field("id", encoded = true) id: String,
                   @Field("pass", encoded = true) password: String) : Observable<RoutesResponse>
 

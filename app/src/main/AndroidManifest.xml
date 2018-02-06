@@ -53,6 +53,10 @@
 
         <activity android:name=".ui.GatewayActivity" />
 
+        <service android:name=".services.LocationService"
+            android:process=":my_service"
+            android:exported="false"/>
+
     </application>
 
 </manifest>
